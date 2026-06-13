@@ -9,8 +9,9 @@ from ..vlm import VLMClient
 class ImageHandler:
     handles = {"diagram", "logo", "photo"}
 
-    def extract(self, region: Region, page: PageContext, vlm: VLMClient) -> ChunkResult:
-        description = vlm.describe_image(image_bytes=b"")
+    def extract(self, region: Region, page: PageContext, vlm: VLMClient,
+                crop: bytes | None = None) -> ChunkResult:
+        description = vlm.describe_image(image_bytes=crop or b"")
         return ChunkResult(
             type=region.type,
             content={"description": description},

@@ -11,7 +11,16 @@ from ..vlm import VLMClient
 class RegionHandler(Protocol):
     handles: set[str]
 
-    def extract(self, region: Region, page: PageContext, vlm: VLMClient) -> ChunkResult: ...
+    def extract(
+        self,
+        region: Region,
+        page: PageContext,
+        vlm: VLMClient,
+        crop: bytes | None = None,
+    ) -> ChunkResult:
+        """`crop` is the region's pixel crop (regions/…png) when one was written
+        by the layout stage, else None — image-needing handlers use it."""
+        ...
 
 
 def build_registry() -> dict[str, RegionHandler]:

@@ -12,9 +12,10 @@ from ..vlm import VLMClient
 class ChartHandler:
     handles = {"chart"}
 
-    def extract(self, region: Region, page: PageContext, vlm: VLMClient) -> ChunkResult:
+    def extract(self, region: Region, page: PageContext, vlm: VLMClient,
+                crop: bytes | None = None) -> ChunkResult:
         words = [w for w in page.words]  # text-layer labels would be filtered to bbox here
-        chart = vlm.extract_chart(image_bytes=b"", words=words)
+        chart = vlm.extract_chart(image_bytes=crop or b"", words=words)
         confidence = float(chart.pop("confidence", 0.5))
         return ChunkResult(
             type="chart",

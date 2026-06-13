@@ -65,7 +65,10 @@ class ExtractStage:
             handler = self.registry.get(region.type)
             if handler is None:
                 raise KeyError(f"no handler for region type {region.type!r}")
-            result = handler.extract(region, page_ctx, self.vlm)
+            crop = None
+            if region.crop_key:
+                crop = ctx.storage.read(ctx.key(region.crop_key))
+            result = handler.extract(region, page_ctx, self.vlm, crop=crop)
             return region, result
 
         with ThreadPoolExecutor(max_workers=self.max_workers) as pool:

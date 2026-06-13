@@ -24,7 +24,8 @@ class TextHandler:
     handles = {"title", "section_header", "paragraph", "list", "caption",
                "page_header", "page_footer", "footnote"}
 
-    def extract(self, region: Region, page: PageContext, vlm: VLMClient) -> ChunkResult:
+    def extract(self, region: Region, page: PageContext, vlm: VLMClient,
+                crop: bytes | None = None) -> ChunkResult:
         words = [w["text"] for w in page.words if _inside(w["bbox"], region.bbox)]
         return ChunkResult(
             type=region.type,

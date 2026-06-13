@@ -46,7 +46,7 @@ detect = [
 # vLLM sidecar container, not pip-installed here) + table structure (TATR).
 gpu = [
     "cxpoc[detect]",
-    "transformers>=4.44",      # TATR table structure (later slice)
+    "transformers>=4.44,<5",   # TATR table structure; v5 breaks the timm backbone config
     "timm>=1.0",               # TATR backbone
     "openai>=1.40",            # OpenAI-compatible client for the vLLM sidecar
 ]

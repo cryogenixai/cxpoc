@@ -15,11 +15,12 @@ from pipeline.vlm import VLMClient
 
 
 @pytest.fixture(autouse=True)
-def _default_stub_detector(monkeypatch):
-    """Default every test to the model-free stub layout detector. Golden tests
-    that want the real DocLayout-YOLO construct it explicitly and pass it in,
-    bypassing this env default."""
+def _default_stub_models(monkeypatch):
+    """Default every test to the model-free stub layout detector and table
+    recognizer. Golden tests that want the real models construct them explicitly
+    and pass them in, bypassing these env defaults."""
     monkeypatch.setenv("CXPOC_LAYOUT_DETECTOR", "stub")
+    monkeypatch.setenv("CXPOC_TABLE_RECOGNIZER", "stub")
 
 
 def make_minimal_pdf() -> bytes:

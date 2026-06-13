@@ -57,6 +57,12 @@ class VLMClient:
             return "[mock description]"
         raise NotImplementedError("real image captioning lands in the Stage 2 slice")
 
+    def extract_table(self, image_bytes: bytes) -> str:
+        """Table handler VLM fallback (§R4): emit HTML directly from the crop."""
+        if self.is_mock:
+            return "<table><tr><td>[mock cell]</td></tr></table>"
+        raise NotImplementedError("real table VLM fallback lands in the Stage 2 slice")
+
     @property
     def model_id(self) -> str:
         return self.model
