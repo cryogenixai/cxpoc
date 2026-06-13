@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from eval.metrics.layout import area_prf, coverage_areas, iou, layout_scores
+from eval.metrics.layout import area_prf, content_coverage_area, coverage_areas, iou, layout_scores
 from eval.metrics.table import teds
 from eval.metrics.text import text_similarity
 
@@ -44,6 +44,18 @@ def test_coverage_agnostic_to_granularity():
 
     # box-match, by contrast, fails on the same input
     assert layout_scores(pred, ref, ["text"])["per_class"]["text"]["f1"] < 0.3
+
+
+def test_content_coverage_ignores_class_disagreement():
+    # Spec-sheet case: we call it a table, reference calls it text, same area.
+    # Per-class layout scores 0 on both classes, but content coverage ~1.0 —
+    # localization is fine; only the class label differs.
+    pred = [_c("table", 0.1, 0.1, 0.9, 0.9)]
+    ref = [_c("text", 0.1, 0.1, 0.9, 0.9)]
+    cc = area_prf(*content_coverage_area(pred, ref))
+    assert cc["f1"] > 0.98
+    ls = layout_scores(pred, ref, ["table", "text"])
+    assert ls["micro"]["f1"] == 0.0
 
 
 def test_teds_identical():

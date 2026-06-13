@@ -39,6 +39,10 @@ def main(argv: list[str] | None = None) -> int:
 
     print(f"\n=== cxpoc {sc['version']} scorecard  (vs {sc['reference']}, {sc['n_pages']} pages) ===\n")
 
+    cc = sc["content_coverage"]
+    print(f"LOCALIZATION — content coverage (class-agnostic: did we find the content area)")
+    print(f"  P {cc['precision']:.3f}  R {cc['recall']:.3f}  F1 {cc['f1']:.3f}\n")
+
     print("LAYOUT — area coverage (PRIMARY, granularity-agnostic; precision / recall / f1)")
     for cls, p in sc["layout_coverage"]["per_class"].items():
         print(f"  {cls:11} P {p['precision']:.3f}  R {p['recall']:.3f}  F1 {p['f1']:.3f}")
@@ -54,11 +58,12 @@ def main(argv: list[str] | None = None) -> int:
     tx = sc["text"]
     print(f"TEXT    mean similarity {_fmt(tx['mean_similarity'])}  over {tx['n_pages']} pages\n")
 
-    print("BY STRATUM")
-    print(f"  {'stratum':18} {'n':>3}  {'covF1':>6}  {'tables':>6}  {'TEDS':>6}  {'text':>6}")
+    print("BY STRATUM  (locF1 = class-agnostic localization; covF1 = per-class layout)")
+    print(f"  {'stratum':18} {'n':>3}  {'locF1':>6}  {'covF1':>6}  {'tables':>6}  {'TEDS':>6}  {'text':>6}")
     for st, s in sc["by_stratum"].items():
-        print(f"  {st:18} {s['n_pages']:>3}  {s['layout_coverage_f1']:>6.3f}  "
-              f"{s['table_n']:>6}  {_fmt(s['table_mean_teds']):>6}  {_fmt(s['text_mean']):>6}")
+        print(f"  {st:18} {s['n_pages']:>3}  {s['content_coverage_f1']:>6.3f}  "
+              f"{s['layout_coverage_f1']:>6.3f}  {s['table_n']:>6}  "
+              f"{_fmt(s['table_mean_teds']):>6}  {_fmt(s['text_mean']):>6}")
 
     print(f"\nsaved -> {out}")
     return 0

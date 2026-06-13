@@ -105,6 +105,17 @@ def coverage_areas(pred_chunks: list[dict], ref_chunks: list[dict],
     return out
 
 
+def content_coverage_area(pred_chunks: list[dict], ref_chunks: list[dict],
+                          grid: int = 1000) -> tuple[int, int, int]:
+    """(intersection, pred_area, ref_area) of the union of ALL region boxes,
+    ignoring class. Pure localization — 'did we put a region where there's
+    content', independent of how it was classified or segmented. Separates
+    localization from class-disagreement (e.g. spec sheet table-vs-text)."""
+    pm = _rasterize([c["bbox"] for c in pred_chunks], grid)
+    rm = _rasterize([c["bbox"] for c in ref_chunks], grid)
+    return int((pm & rm).sum()), int(pm.sum()), int(rm.sum())
+
+
 def area_prf(inter: int, pred_area: int, ref_area: int) -> dict[str, float]:
     p = inter / pred_area if pred_area else 0.0
     r = inter / ref_area if ref_area else 0.0

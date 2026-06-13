@@ -14,7 +14,7 @@ from typing import Any
 
 from eval.landing_map import load_and_map
 from eval.metrics.layout import (
-    area_prf, coverage_areas, iou, layout_scores, _prf,
+    area_prf, content_coverage_area, coverage_areas, iou, layout_scores, _prf,
 )
 from eval.metrics.table import teds
 from eval.metrics.text import text_similarity
@@ -68,7 +68,8 @@ def evaluate(version: str, pred_root: Path) -> dict[str, Any]:
 
     # accumulators
     layout_acc = {cls: [0, 0, 0] for cls in COARSE}    # box-match tp, fp, fn (secondary)
-    cover_acc = {cls: [0, 0, 0] for cls in COARSE}     # area inter, pred, ref (primary)
+    cover_acc = {cls: [0, 0, 0] for cls in COARSE}     # per-class area inter, pred, ref (primary)
+    content_acc = [0, 0, 0]                             # class-agnostic localization
     teds_scores: list[float] = []
     text_scores: list[float] = []
     strat: dict[str, dict] = {}
@@ -83,8 +84,13 @@ def evaluate(version: str, pred_root: Path) -> dict[str, Any]:
         ref = silver[gid]["chunks"]
 
         sb = strat.setdefault(st, {"n": 0, "cover": {c: [0, 0, 0] for c in COARSE},
-                                   "teds": [], "text": []})
+                                   "content": [0, 0, 0], "teds": [], "text": []})
         sb["n"] += 1
+
+        # localization — class-agnostic content coverage
+        ci, cp, cr = content_coverage_area(ours, ref)
+        content_acc[0] += ci; content_acc[1] += cp; content_acc[2] += cr
+        sb["content"][0] += ci; sb["content"][1] += cp; sb["content"][2] += cr
 
         # layout — primary: area coverage (granularity-agnostic)
         for cls, (inter, pa, ra) in coverage_areas(ours, ref, COARSE).items():
@@ -122,6 +128,8 @@ def evaluate(version: str, pred_root: Path) -> dict[str, Any]:
         "version": version,
         "reference": "landing_ai_silver",
         "n_pages": sum(s["n"] for s in strat.values()),
+        # Localization only (class-agnostic): did we put a region where content is.
+        "content_coverage": area_prf(*content_acc),
         # Primary: area-coverage P/R (granularity-agnostic).
         "layout_coverage": {
             "per_class": {c: area_prf(*cover_acc[c]) for c in COARSE
@@ -139,6 +147,7 @@ def evaluate(version: str, pred_root: Path) -> dict[str, Any]:
         "by_stratum": {
             st: {
                 "n_pages": sb["n"],
+                "content_coverage_f1": area_prf(*sb["content"])["f1"],
                 "layout_coverage_f1": cover_micro(sb["cover"])["f1"],
                 "table_n": len(sb["teds"]),
                 "table_mean_teds": mean(sb["teds"]),
