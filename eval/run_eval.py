@@ -1,0 +1,65 @@
+"""Run the eval harness and print + save the v1 scorecard.
+
+Usage:
+    python -m eval.run_eval [--version v1] [--pred eval/out/pred_v1]
+        [--out eval/out/scorecard_v1.json]
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from pathlib import Path
+
+_SRC = Path(__file__).resolve().parent.parent / "src"
+if str(_SRC) not in sys.path:
+    sys.path.insert(0, str(_SRC))
+
+from eval.harness import evaluate
+
+
+def _fmt(v):
+    return "  —  " if v is None else f"{v:.3f}"
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(prog="eval.run_eval")
+    parser.add_argument("--version", default="v1")
+    parser.add_argument("--pred", default=None)
+    parser.add_argument("--out", default=None)
+    args = parser.parse_args(argv)
+
+    pred_root = Path(args.pred or f"eval/out/pred_{args.version}")
+    sc = evaluate(args.version, pred_root)
+
+    out = Path(args.out or f"eval/out/scorecard_{args.version}.json")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(sc, indent=2))
+
+    print(f"\n=== cxpoc {sc['version']} scorecard  (vs {sc['reference']}, {sc['n_pages']} pages) ===\n")
+
+    print("LAYOUT  (precision / recall / f1, IoU>=0.5, coarse classes)")
+    for cls, p in sc["layout"]["per_class"].items():
+        print(f"  {cls:11} P {p['precision']:.3f}  R {p['recall']:.3f}  F1 {p['f1']:.3f}"
+              f"   (tp {p['tp']}, fp {p['fp']}, fn {p['fn']})")
+    m = sc["layout"]["micro"]
+    print(f"  {'MICRO':11} P {m['precision']:.3f}  R {m['recall']:.3f}  F1 {m['f1']:.3f}\n")
+
+    t = sc["table"]
+    print(f"TABLE   mean TEDS {_fmt(t['mean_teds'])}  over {t['n_matched_pairs']} IoU-matched table pairs")
+    tx = sc["text"]
+    print(f"TEXT    mean similarity {_fmt(tx['mean_similarity'])}  over {tx['n_pages']} pages\n")
+
+    print("BY STRATUM")
+    print(f"  {'stratum':18} {'n':>3}  {'layoutF1':>8}  {'tables':>6}  {'TEDS':>6}  {'text':>6}")
+    for st, s in sc["by_stratum"].items():
+        print(f"  {st:18} {s['n_pages']:>3}  {s['layout_micro_f1']:>8.3f}  "
+              f"{s['table_n']:>6}  {_fmt(s['table_mean_teds']):>6}  {_fmt(s['text_mean']):>6}")
+
+    print(f"\nsaved -> {out}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
