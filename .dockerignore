@@ -1,0 +1,12 @@
+.git
+.gitignore
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+_jobs/
+models/
+*.md
+!README.md
+.DS_Store

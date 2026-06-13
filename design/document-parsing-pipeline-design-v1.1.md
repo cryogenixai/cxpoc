@@ -361,27 +361,44 @@ Instance sizing: `g5.xlarge` (1× A10G 24 GB VRAM, 4 vCPU, 16 GB RAM).
 
 The `MODEL` and `VLM_BASE_URL` env vars are the only difference between the two VMs. Pipeline code is identical.
 
-### 11.2 Containerization — slim pipeline image + model volume
+### 11.2 Containerization — one codebase, two build targets
 
 One small pipeline image (~3 GB); model weights live on a mounted EBS volume pulled once per VM. This keeps image rebuilds fast (seconds) and lets you switch the model under test by changing a single env var and restarting the vLLM container — no image rebuild required.
 
+**Two build targets from the same Dockerfile and the same pipeline code**, because dev happens on a macOS laptop (no CUDA, no GPU) and production runs on a Linux GPU VM:
+
 ```
-Dockerfile               # CUDA runtime base; pipeline code + deps only, no weights
-docker-compose.yml       # pipeline app + vLLM sidecar (model from volume) + LocalStack
-pyproject.toml           # fully pinned deps (incl. CUDA version — ML images rot fast)
+Dockerfile  (multi-stage)
+  ├── target: dev   → python:3.12-slim (multi-arch: Apple Silicon + Intel)
+  │                   pipeline code + deps, NO models, NO CUDA.
+  │                   Mac laptop: skeleton + LocalStack + L1/L3 tests.
+  │                   VLMClient points at a mock — no vLLM sidecar.
+  │
+  └── target: gpu   → nvidia/cuda runtime base (linux/amd64)
+                      pipeline code + deps, models on mounted volume.
+                      EC2 g5.xlarge: real detectors + vLLM sidecar.
+```
+
+Only the base image and the presence of the vLLM sidecar differ between targets. `storage.py`, `manifest.py`, the stages, and the handlers are byte-for-byte identical. The walking skeleton (trivial stages, mocked models) runs entirely under the `dev` target on a Mac — no GPU required until real models land in the vertical slices.
+
+```
+Dockerfile               # multi-stage: dev (slim, multi-arch) | gpu (CUDA)
+docker-compose.yml        # dev: pipeline app + LocalStack
+docker-compose.gpu.yml    # gpu: adds vLLM sidecar (model from volume)
+pyproject.toml            # fully pinned deps; CUDA-specific deps gated to gpu extras
 scripts/
   pull_model.sh          # downloads model weights to /models/ volume on first VM boot
 src/pipeline/
   storage.py             # abstraction: LocalFS | S3 backends, read(key)/write(key)
   manifest.py
-  vlm.py                 # VLMClient: hits VLM_BASE_URL (OpenAI-compatible); MODEL env var
+  vlm.py                 # VLMClient: hits VLM_BASE_URL (OpenAI-compatible) or mock; MODEL env var
   stages/{ingest,layout,extract,assemble}.py
   handlers/{text,table,chart,image}.py
   run.py                 # CLI: python -m pipeline.run --job s3://.../doc.pdf
 tests/
 ```
 
-`vlm.py` is the single seam for model experimentation: all handlers call `VLMClient`, which reads `VLM_BASE_URL` and `VLM_MODEL` from the environment. Swapping models = change two env vars.
+`vlm.py` is the single seam for model experimentation: all handlers call `VLMClient`, which reads `VLM_BASE_URL` and `VLM_MODEL` from the environment (a `mock://` URL returns canned responses for local dev). Swapping models = change two env vars; swapping dev↔gpu = change the build target.
 
 ### 11.3 Storage — S3 from the start, via the abstraction
 
@@ -397,8 +414,8 @@ API Gateway / job-submission endpoint; Step Functions or queue (SQS/Celery); aut
 
 ### 11.6 Experimental build sequence
 
-1. Walking skeleton (trivial stages) running **locally** in the container against LocalStack — proves wiring + storage abstraction + manifest + VLMClient stub.
-2. Same image on **one EC2 VM** against real S3 + real vLLM — proves portability and the AWS path.
+1. Walking skeleton (trivial stages) running **locally on a Mac laptop** via the `dev` build target against LocalStack — proves wiring + storage abstraction + manifest + VLMClient mock. No GPU/CUDA.
+2. Same code via the `gpu` build target on **one EC2 VM** against real S3 + real vLLM — proves portability and the AWS path.
 3. Spin up the **second EC2 VM** with a different model; run the same fixture PDFs on both.
 4. Upgrade stages to real models one at a time (vertical-slice order from §7), validating on fixture PDFs.
 5. Run the growing fixture set through both VMs; build the L4 eval harness; compare per-model metrics.
@@ -414,6 +431,8 @@ API Gateway / job-submission endpoint; Step Functions or queue (SQS/Celery); aut
 | Figure-type router | VLM call (reuses vLLM sidecar) | No extra model to manage |
 | Job ID | UUID | Simple; avoids reprocessing-semantics edge cases of content hash |
 | Walking skeleton scope | Trivial stubs first, then vertical slices | Full pipeline wired on day one; isolate failures per stage |
+| Build targets | `dev` (slim, multi-arch) + `gpu` (CUDA) from one Dockerfile | Dev on macOS laptop without GPU; same code runs on the GPU VM |
+| Local dev machine | macOS laptop (Apple Silicon or Intel) | Skeleton + LocalStack + tests need no GPU; models run only on EC2 |
 
 ---
 

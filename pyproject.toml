@@ -1,0 +1,44 @@
+[project]
+name = "cxpoc"
+version = "0.1.0"
+description = "Document parsing pipeline PoC — hybrid PDF-to-structured-JSON"
+requires-python = ">=3.12"
+
+# Dev dependencies: everything the walking skeleton needs. No models, no CUDA.
+# These install fine on a macOS laptop (Apple Silicon or Intel).
+dependencies = [
+    "boto3>=1.34,<2",
+    "jsonschema>=4.21,<5",
+]
+
+[project.optional-dependencies]
+# Test-time tooling (still no models).
+dev = [
+    "pytest>=8.0,<9",
+]
+
+# Heavy, GPU/Linux-only deps for the real model stages. Installed ONLY in the
+# `gpu` Docker build target on the EC2 VM — never on the Mac dev machine.
+gpu = [
+    "pymupdf>=1.24",
+    "pillow>=10.0",
+    "numpy>=1.26",
+    "torch>=2.3",
+    "transformers>=4.44",
+    "ultralytics>=8.2",      # DocLayout-YOLO family
+    "openai>=1.40",          # OpenAI-compatible client for the vLLM sidecar
+]
+
+[project.scripts]
+cxpoc = "pipeline.run:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

@@ -1,0 +1,38 @@
+# Local dev stack (macOS laptop). Proves wiring + storage abstraction + manifest
+# against LocalStack-emulated S3. No GPU, no model server.
+#
+#   docker compose up -d localstack
+#   docker compose run --rm pipeline --input /work/tests/fixtures/sample.pdf \
+#       --store s3://cxpoc-jobs
+#
+services:
+  localstack:
+    image: localstack/localstack:3
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=s3
+      - DEBUG=0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  pipeline:
+    build:
+      context: .
+      target: dev
+    depends_on:
+      localstack:
+        condition: service_healthy
+    environment:
+      # Point boto3 at LocalStack; the storage layer reads AWS_S3_ENDPOINT.
+      - AWS_S3_ENDPOINT=http://localstack:4566
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_DEFAULT_REGION=us-east-1
+      - VLM_BASE_URL=mock://
+      - VLM_MODEL=mock
+    volumes:
+      - .:/work

@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+
+# Pytest / tooling
+.pytest_cache/
+.coverage
+
+# Local artifact store (job outputs)
+_jobs/
+*.local
+
+# Models (never committed; pulled to a volume on the VM)
+models/
+/models/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
