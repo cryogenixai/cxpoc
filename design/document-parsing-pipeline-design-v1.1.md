@@ -1,6 +1,7 @@
 # Document Parsing Pipeline — Design Document
 
-**Status:** Draft v0.3 · **Date:** 2026-06-12
+**Status:** Draft v0.4 · **Date:** 2026-06-14
+**v0.4 changes:** Added the element taxonomy (§4.1) — compact `type` enum + attributes covering Pryon's 18 labels; classification-refinement step in Stage 1 (text-layer fusion → fine labels); continuation detection in Stage 3; `schema_version` → 1.1.
 **Scope of this doc:** Extraction pipeline only. API design, serverless deployment, and multi-document concurrency are deliberately out of scope for v1 but the design keeps clean seams for them.
 
 ---
@@ -77,11 +78,20 @@ Open the PDF with **PyMuPDF**. For each page:
 
 ### Stage 1 — Layout Detection & Figure Routing
 
-Run a layout detector (**DocLayout-YOLO**, or the Docling layout model) on each page image. Region classes: `title`, `section_header`, `paragraph`, `list`, `table`, `figure`, `caption`, `page_header`, `page_footer`, `footnote`.
+Run a layout detector (**DocLayout-YOLO**, or the Docling layout model) on each page image. The detector emits ten **coarse** region classes: `title`, `section_header`, `paragraph`, `list`, `table`, `figure`, `caption`, `page_header`, `page_footer`, `footnote`. These are *detector* classes; §4 defines the richer **IR element taxonomy** they map to, and most of the refinement below is what bridges the two.
 
 Detectors trained on DocLayNet do not reliably distinguish chart vs. diagram vs. logo vs. photo — they lump them as `figure`. Therefore a **figure-type router** refines each `figure` crop into `chart | diagram | logo | photo` via either a tiny classifier or one cheap VLM call per crop. The router is the future extension point for new classes (stamps, signatures, form fields).
 
-**Output:** `layout/pNNNN.regions.json` — list of `{region_id, type, bbox, detector_confidence}` — plus region crops `regions/pNNNN_rNN.png` for any region a downstream handler needs as an image.
+**Classification refinement (text-layer fusion).** We deliberately keep the detector at ten coarse classes rather than training a fine-grained one (Pryon's production 18-class vision model tops out at 51.45% mAP with a weak tail; see `approach-and-evaluation-notes-v0.1.md`). Instead, a cheap deterministic refinement step upgrades coarse classes to the fine IR taxonomy using *exact* born-digital signals from the Stage 0 word list — no model:
+
+- **Heading level** (`heading.level`): cluster region font size/weight → 1/2/3.
+- **List subtype** (`list.ordered`): leading-glyph test (•, –, *) vs. numbering pattern (`1.`, `a)`, `i.`).
+- **Page number** (`page_number`): split from `page_header`/`page_footer` by margin-band position + pure-numeric / "Page X of Y" pattern.
+- **Table of contents** (`toc`): dot-leader + trailing-page-number line pattern, clustered.
+
+Genuinely ambiguous regions (e.g. side boxes) fall back to `other` or the low-confidence/VLM route (§10). This is the cheap form of the "fuse visual + text features" idea (cf. Pryon's LayoutLM next-step): for born-digital, font/glyph/position are exact, so we are *strongest* on exactly the classes a pure-vision model is weakest on.
+
+**Output:** `layout/pNNNN.regions.json` — list of `{region_id, type, attributes, bbox, detector_confidence}` — plus region crops `regions/pNNNN_rNN.png` for any region a downstream handler needs as an image.
 
 ### Stage 2 — Region Handlers (parallel per region)
 
@@ -114,16 +124,58 @@ Additionally extract any text-layer words falling inside the chart bbox — born
 ### Stage 3 — Assembly
 
 1. Sort regions into logical reading order per page (**XY-cut**; sufficient for corporate single/two-column layouts; replaceable with a learned reading-order model later).
-2. Merge into the final document JSON (schema in §4). Normalize all bboxes to 0–1 relative coordinates (resolution-independent) and attach the page index.
-3. Validate against the output JSON schema before declaring the job done.
+2. **Continuation detection.** While walking the reading order, set `continued: true` on a `paragraph`/`list` block that continues the previous one across a column or page break (signals: prior block lacks terminal punctuation and this one starts lowercase; list numbering/bullets carry over). This single flag replaces the three separate "…Continued" classes a flat taxonomy would need, and is the right place to handle the cross-page/cross-column stitch flagged in the gold-set doc — it is inherently a reading-order decision, not something a detector can see from one region in isolation.
+3. Merge into the final document JSON (schema in §4). Normalize all bboxes to 0–1 relative coordinates (resolution-independent) and attach the page index.
+4. Validate against the output JSON schema before declaring the job done.
 
 ---
 
 ## 4. Output JSON Schema (v1)
 
+### 4.1 Element taxonomy
+
+We model elements as a **compact `type` enum plus attributes**, rather than a flat list of ~18 classes. Modifiers like heading level, list ordering, and continuation are *attributes* of a block, not separate types — this is more expressive (it covers Pryon's full 18-label set), cheaper to produce (most attributes derive from the text layer), and better shaped for chunking. Tiered by PoC priority:
+
+**P0 — required:**
+
+| `type` | Attributes | Notes |
+|---|---|---|
+| `title` | — | document/section title & subtitle; often promotes to doc-level `title` |
+| `heading` | `level: 1\|2\|3` | drives `section_path` / hierarchy |
+| `paragraph` | `continued: bool` | body text |
+| `list` | `ordered: bool`, `continued: bool` | bulleted vs numbered |
+| `table` | — | `content.html` |
+| `chart` `diagram` `logo` `photo` | — | visual leaf types from the figure-router; distinct because `content` differs (chart JSON vs. description) |
+| `caption` | `for: table\|figure` | — |
+| `page_header` `page_footer` `page_number` | `is_boilerplate: true` | **excluded from the default chunk stream**; split via classification refinement (§3, Stage 1) |
+
+**P1 — should-have:** `footnote`; `toc` (`is_boilerplate: true`); `other` (catch-all, also absorbs side boxes for now).
+
+**P2 — deferred:** `formula` / `code` (domain-dependent); `side_box` as its own type (folded into `other` until it proves it matters).
+
+**Detector-class → IR mapping** (the detector stays 10-class; the IR exposes the richer set):
+
+| Detector / router class | IR type (+ attributes) |
+|---|---|
+| `title` | `title` |
+| `section_header` | `heading` (+ `level` from font clustering) |
+| `paragraph` | `paragraph` (+ `continued` in assembly) |
+| `list` | `list` (+ `ordered`; + `continued` in assembly) |
+| `table` | `table` |
+| `figure` → router | `chart` / `diagram` / `logo` / `photo` |
+| `caption` | `caption` (+ `for`) |
+| `page_header` / `page_footer` | `page_header` / `page_footer` / `page_number` (split by position+pattern) |
+| `footnote` | `footnote` |
+| (ToC pattern) | `toc` |
+| (unmatched) | `other` |
+
+This taxonomy fully covers Pryon's 18 labels: Heading 1/2/Other → `heading.level`; Bulleted/Numbered → `list.ordered`; the three Continued → `continued`; Page Number/Header/Footer → the boilerplate types; Image → `logo`/`photo`; Side box → `other`.
+
+### 4.2 Document JSON
+
 ```json
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "job_id": "uuid-or-content-hash",
   "source": {"filename": "report.pdf", "pages": 12, "sha256": "..."},
   "pipeline": {"versions": {"layout": "doclayout-yolo-x.y", "table": "tatr-x.y", "vlm": "model-id"}},
@@ -134,8 +186,19 @@ Additionally extract any text-layer words falling inside the chart bbox — born
       "page_kind": "digital",
       "chunks": [
         {
+          "id": "p0000_r002",
+          "type": "heading",
+          "attributes": {"level": 2},
+          "bbox": {"x0": 0.07, "y0": 0.22, "x1": 0.61, "y1": 0.25},
+          "reading_order": 2,
+          "content": {"text": "Liquidity and Capital Resources"},
+          "source": "text-layer",
+          "confidence": 0.99
+        },
+        {
           "id": "p0000_r003",
           "type": "table",
+          "attributes": {},
           "bbox": {"x0": 0.07, "y0": 0.31, "x1": 0.93, "y1": 0.58},
           "reading_order": 3,
           "content": {"html": "<table><tr><td>...</td></tr></table>"},
@@ -157,7 +220,7 @@ Additionally extract any text-layer words falling inside the chart bbox — born
 }
 ```
 
-`content` is polymorphic by `type`: `{text}` for text-like chunks, `{html}` for tables, the chart schema for charts, `{description}` for logos/diagrams/photos. Every chunk always carries `bbox`, `source`, `confidence`.
+`content` is polymorphic by `type`: `{text}` for text-like chunks, `{html}` for tables, the chart schema for charts, `{description}` for logos/diagrams/photos. Every chunk always carries `type`, `attributes` (per §4.1; `{}` when none), `bbox`, `source`, and `confidence`. Boilerplate/navigation types (`page_header`, `page_footer`, `page_number`, `toc`) remain in `chunks` for completeness but carry `is_boilerplate: true` so the downstream chunker can exclude them by default.
 
 ---
 
