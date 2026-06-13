@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>cxpoc review</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header>
+    <h1>cxpoc review</h1>
+    <label>Job
+      <select id="job-select"></select>
+    </label>
+    <span class="nav">
+      <button id="prev">‹ Prev</button>
+      <span id="page-label">– / –</span>
+      <button id="next">Next ›</button>
+    </span>
+    <label class="conf">Min confidence
+      <input id="conf" type="range" min="0" max="1" step="0.05" value="0" />
+      <span id="conf-val">0.00</span>
+    </label>
+    <span id="status" class="status"></span>
+  </header>
+
+  <main>
+    <section id="viewer">
+      <div id="stage">
+        <canvas id="pdf-canvas"></canvas>
+        <div id="overlay"></div>
+      </div>
+    </section>
+
+    <aside id="sidebar">
+      <div id="legend"></div>
+      <h2>Region</h2>
+      <div id="detail" class="empty">Click a box to inspect a region.</div>
+    </aside>
+  </main>
+
+  <!-- PDF.js (module build) from CDN -->
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

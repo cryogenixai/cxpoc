@@ -20,6 +20,12 @@ _jobs/
 models/
 /models/
 
+# AWS credentials — must NEVER be committed
+aws/
+*accessKeys*.csv
+*.pem
+credentials
+
 # OS / editor
 .DS_Store
 .idea/
