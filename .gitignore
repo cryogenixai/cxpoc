@@ -16,6 +16,10 @@ venv/
 _jobs/
 *.local
 
+# Eval scratch — mined feature tables, shortlists, scorecards, mining store
+# (all regenerable from the corpus + frozen gold manifest)
+eval/out/
+
 # Models (never committed; pulled to a volume on the VM)
 models/
 /models/
