@@ -60,34 +60,41 @@ def stratify(rows: list[dict], cap: int, oversample: int):
         by_stratum[r["page_type_guess"]].append(r)
 
     per_doc = defaultdict(int)        # global per-doc count across all strata
+    coverage: dict[str, int] = defaultdict(int)
+    chosen_ids: set[str] = set()
     selected: list[dict] = []
-    coverage: dict[str, int] = {}
 
-    # Fill highest-value strata first (targets are set by value) so the scarce
-    # per-doc budget goes to the hardest pages — financial tables before edges.
-    order = sorted(TARGETS, key=lambda s: TARGETS[s], reverse=True)
-    for stratum in order:
-        target = TARGETS[stratum] * oversample
-        cands = sorted(by_stratum.get(stratum, []),
-                       key=lambda r: hardness(stratum, r), reverse=True)
-        picked = 0
-        for r in cands:
-            if picked >= target:
+    # Pre-rank candidates per stratum by hardness once.
+    ranked = {
+        s: sorted(rows_s, key=lambda r: hardness(s, r), reverse=True)
+        for s, rows_s in by_stratum.items()
+    }
+
+    def fill(stratum: str, limit: int):
+        for r in ranked.get(stratum, []):
+            if coverage[stratum] >= limit:
                 break
-            if per_doc[r["doc_id"]] >= cap:
+            if r["gold_id"] in chosen_ids or per_doc[r["doc_id"]] >= cap:
                 continue
             per_doc[r["doc_id"]] += 1
-            picked += 1
+            chosen_ids.add(r["gold_id"])
+            coverage[stratum] += 1
             selected.append({
-                **r,
-                "stratum": stratum,
-                "score": round(hardness(stratum, r), 3),
+                **r, "stratum": stratum, "score": round(hardness(stratum, r), 3),
                 "selection_reason": f"{stratum}: conf={r['mean_detector_conf']}, "
                                     f"tables={r['n_table_regions']}, fig={r['has_figure']}, "
                                     f"borderless={r['is_borderless_hint']}",
             })
-        coverage[stratum] = picked
-    return selected, coverage
+
+    # Pass 1 — guarantee each stratum its base target (every failure mode gets
+    # examples before any stratum oversamples). Pass 2 — oversample toward
+    # oversample x target with whatever per-doc budget remains, value-first.
+    priority = sorted(TARGETS, key=lambda s: TARGETS[s], reverse=True)
+    for stratum in priority:
+        fill(stratum, TARGETS[stratum])
+    for stratum in priority:
+        fill(stratum, TARGETS[stratum] * oversample)
+    return selected, dict(coverage)
 
 
 def main(argv: list[str] | None = None) -> int:

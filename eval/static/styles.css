@@ -1,0 +1,44 @@
+* { box-sizing: border-box; }
+body { margin: 0; font: 13px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1c2333; }
+header { display: flex; align-items: baseline; gap: 16px; padding: 9px 16px; background: #1c2333; color: #fff; }
+header h1 { font-size: 15px; margin: 0; font-weight: 600; }
+.summary { font-size: 12px; opacity: 0.8; }
+.counts { margin-left: auto; font-size: 12px; }
+.counts .in { color: #7ee787; font-weight: 600; }
+.counts .out { color: #ff9a8a; font-weight: 600; }
+
+main { display: flex; height: calc(100vh - 40px); }
+
+nav {
+  width: 340px; min-width: 280px; overflow-y: auto;
+  border-right: 1px solid #dde2ec; background: #fafbfd; padding: 8px 0;
+}
+.doc { padding: 6px 12px 2px; font-weight: 600; color: #2a3349; font-size: 12px;
+       border-top: 1px solid #eef1f6; word-break: break-all; }
+.doc .src { font-weight: 500; color: #8a93a6; font-size: 11px; }
+.page {
+  padding: 3px 10px 3px 26px; cursor: pointer; display: flex; gap: 8px;
+  align-items: center; border-left: 3px solid transparent;
+}
+.page:hover { background: #eef2fb; }
+.page.active { background: #e3ebfd; border-left-color: #1e88e5; }
+.page.sel-in { background: #eafbea; border-left-color: #43a047; }
+.page.sel-out { background: #fdeeee; border-left-color: #e53935; opacity: 0.6; }
+.page.active.sel-in, .page.active.sel-out { border-left-color: #1e88e5; }
+.page .pg { color: #1c2333; min-width: 38px; }
+.page .stratum { font-size: 10.5px; color: #fff; padding: 1px 6px; border-radius: 10px; background: #7986a3; }
+.page .spacer { flex: 1; }
+.thumb {
+  border: none; background: transparent; cursor: pointer; font-size: 13px;
+  padding: 1px 3px; border-radius: 5px; opacity: 0.35; line-height: 1;
+}
+.thumb:hover { opacity: 0.8; background: #dfe5f0; }
+.thumb.on { opacity: 1; }
+.thumb.up.on { background: #c8f0c8; }
+.thumb.down.on { background: #f6cccc; }
+
+#viewer { flex: 1; display: flex; flex-direction: column; background: #f4f6fa; }
+.page-info { padding: 8px 16px; font-size: 12px; color: #4a5570; border-bottom: 1px solid #dde2ec; background: #fff; }
+.page-info b { color: #1c2333; }
+#image-wrap { flex: 1; overflow: auto; padding: 20px; display: flex; justify-content: center; align-items: flex-start; }
+#page-img { max-width: 100%; box-shadow: 0 2px 14px rgba(0,0,0,0.18); background: #fff; display: none; }

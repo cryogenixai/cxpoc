@@ -178,7 +178,9 @@ class TATRRecognizer:
                 self._model.to(self.device).eval()
         return self._model, self._proc
 
-    def recognize(self, crop_png, region_bbox, page_words):
+    def _detect_grid(self, crop_png):
+        """Run TATR on the crop -> (rows, cols, headers, spans, cw, ch) in crop
+        pixel coords. rows/cols are deduped (box, score) lists."""
         import torch
         from PIL import Image
 
@@ -208,6 +210,15 @@ class TATRRecognizer:
         cols = _dedup_1d([(b, s) for lab, b, s in objs if lab == "table column"], vertical=False)
         headers = [b for lab, b, _ in objs if lab == "table column header"]
         spans = [(b, s) for lab, b, s in objs if lab == "table spanning cell"]
+        return rows, cols, headers, spans, cw, ch
+
+    def cell_boxes(self, crop_png) -> list[list[float]]:
+        """Row×column cell boxes in crop pixel coords (for grid-coverage eval)."""
+        rows, cols, _, _, _, _ = self._detect_grid(crop_png)
+        return [_cell(rb, cb) for rb, _ in rows for cb, _ in cols]
+
+    def recognize(self, crop_png, region_bbox, page_words):
+        rows, cols, headers, spans, cw, ch = self._detect_grid(crop_png)
 
         if not rows or not cols:
             return {"html": "", "confidence": 0.0, "n_rows": len(rows), "n_cols": len(cols), "source": "tatr"}
