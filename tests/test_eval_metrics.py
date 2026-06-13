@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from eval.metrics.layout import iou, layout_scores
+from eval.metrics.layout import area_prf, coverage_areas, iou, layout_scores
 from eval.metrics.table import teds
 from eval.metrics.text import text_similarity
 
@@ -31,6 +31,19 @@ def test_layout_missed_table():
     s = layout_scores(pred, ref, ["table", "text"])
     assert s["per_class"]["table"]["recall"] == 0.0
     assert s["per_class"]["text"]["recall"] == 1.0
+
+
+def test_coverage_agnostic_to_granularity():
+    # One big ref box vs many small pred boxes tiling the same area -> coverage ~1,
+    # even though box-match scores 0 (the exact granularity-mismatch case).
+    ref = [_c("text", 0.0, 0.0, 1.0, 1.0)]
+    pred = [_c("text", 0.0, i / 10, 1.0, (i + 1) / 10) for i in range(10)]
+    areas = coverage_areas(pred, ref, ["text"])
+    prf = area_prf(*areas["text"])
+    assert prf["recall"] > 0.98 and prf["precision"] > 0.98
+
+    # box-match, by contrast, fails on the same input
+    assert layout_scores(pred, ref, ["text"])["per_class"]["text"]["f1"] < 0.3
 
 
 def test_teds_identical():

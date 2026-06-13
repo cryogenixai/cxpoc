@@ -39,12 +39,15 @@ def main(argv: list[str] | None = None) -> int:
 
     print(f"\n=== cxpoc {sc['version']} scorecard  (vs {sc['reference']}, {sc['n_pages']} pages) ===\n")
 
-    print("LAYOUT  (precision / recall / f1, IoU>=0.5, coarse classes)")
-    for cls, p in sc["layout"]["per_class"].items():
-        print(f"  {cls:11} P {p['precision']:.3f}  R {p['recall']:.3f}  F1 {p['f1']:.3f}"
-              f"   (tp {p['tp']}, fp {p['fp']}, fn {p['fn']})")
-    m = sc["layout"]["micro"]
+    print("LAYOUT — area coverage (PRIMARY, granularity-agnostic; precision / recall / f1)")
+    for cls, p in sc["layout_coverage"]["per_class"].items():
+        print(f"  {cls:11} P {p['precision']:.3f}  R {p['recall']:.3f}  F1 {p['f1']:.3f}")
+    m = sc["layout_coverage"]["micro"]
     print(f"  {'MICRO':11} P {m['precision']:.3f}  R {m['recall']:.3f}  F1 {m['f1']:.3f}\n")
+
+    bm = sc["layout_boxmatch"]["micro"]
+    print(f"LAYOUT — box-match (secondary, segmentation agreement): "
+          f"P {bm['precision']:.3f}  R {bm['recall']:.3f}  F1 {bm['f1']:.3f}\n")
 
     t = sc["table"]
     print(f"TABLE   mean TEDS {_fmt(t['mean_teds'])}  over {t['n_matched_pairs']} IoU-matched table pairs")
@@ -52,9 +55,9 @@ def main(argv: list[str] | None = None) -> int:
     print(f"TEXT    mean similarity {_fmt(tx['mean_similarity'])}  over {tx['n_pages']} pages\n")
 
     print("BY STRATUM")
-    print(f"  {'stratum':18} {'n':>3}  {'layoutF1':>8}  {'tables':>6}  {'TEDS':>6}  {'text':>6}")
+    print(f"  {'stratum':18} {'n':>3}  {'covF1':>6}  {'tables':>6}  {'TEDS':>6}  {'text':>6}")
     for st, s in sc["by_stratum"].items():
-        print(f"  {st:18} {s['n_pages']:>3}  {s['layout_micro_f1']:>8.3f}  "
+        print(f"  {st:18} {s['n_pages']:>3}  {s['layout_coverage_f1']:>6.3f}  "
               f"{s['table_n']:>6}  {_fmt(s['table_mean_teds']):>6}  {_fmt(s['text_mean']):>6}")
 
     print(f"\nsaved -> {out}")

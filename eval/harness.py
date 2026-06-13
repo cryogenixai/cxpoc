@@ -13,7 +13,9 @@ from pathlib import Path
 from typing import Any
 
 from eval.landing_map import load_and_map
-from eval.metrics.layout import iou, layout_scores, match_class, _prf
+from eval.metrics.layout import (
+    area_prf, coverage_areas, iou, layout_scores, _prf,
+)
 from eval.metrics.table import teds
 from eval.metrics.text import text_similarity
 from eval.taxonomy import COARSE, coarse_ours
@@ -65,7 +67,8 @@ def evaluate(version: str, pred_root: Path) -> dict[str, Any]:
     stratum_of = {p["gold_id"]: p["stratum"] for p in manifest["pages"]}
 
     # accumulators
-    layout_acc = {cls: [0, 0, 0] for cls in COARSE}   # tp, fp, fn
+    layout_acc = {cls: [0, 0, 0] for cls in COARSE}    # box-match tp, fp, fn (secondary)
+    cover_acc = {cls: [0, 0, 0] for cls in COARSE}     # area inter, pred, ref (primary)
     teds_scores: list[float] = []
     text_scores: list[float] = []
     strat: dict[str, dict] = {}
@@ -79,16 +82,21 @@ def evaluate(version: str, pred_root: Path) -> dict[str, Any]:
         ours = _our_chunks(json.loads(doc_path.read_text()))
         ref = silver[gid]["chunks"]
 
-        sb = strat.setdefault(st, {"n": 0, "layout": {c: [0, 0, 0] for c in COARSE},
+        sb = strat.setdefault(st, {"n": 0, "cover": {c: [0, 0, 0] for c in COARSE},
                                    "teds": [], "text": []})
         sb["n"] += 1
 
-        # layout
+        # layout — primary: area coverage (granularity-agnostic)
+        for cls, (inter, pa, ra) in coverage_areas(ours, ref, COARSE).items():
+            cover_acc[cls][0] += inter; cover_acc[cls][1] += pa; cover_acc[cls][2] += ra
+            sc = sb["cover"][cls]
+            sc[0] += inter; sc[1] += pa; sc[2] += ra
+
+        # layout — secondary: box-count match (segmentation agreement)
         ls = layout_scores(ours, ref, COARSE)
         for cls, prf in ls["per_class"].items():
             for i, k in enumerate(("tp", "fp", "fn")):
                 layout_acc[cls][i] += prf[k]
-                sb["layout"][cls][i] += prf[k]
 
         # tables (TEDS on IoU-matched pairs)
         for p, r in _match_tables(ours, ref):
@@ -99,9 +107,13 @@ def evaluate(version: str, pred_root: Path) -> dict[str, Any]:
         ts = text_similarity(_page_text(ours, by_ro=True), _page_text(ref, by_ro=False))
         text_scores.append(ts); sb["text"].append(ts)
 
-    def micro(acc):
+    def box_micro(acc):
         tot = [sum(acc[c][i] for c in acc) for i in range(3)]
         return _prf(*tot)
+
+    def cover_micro(acc):
+        tot = [sum(acc[c][i] for c in acc) for i in range(3)]
+        return area_prf(*tot)
 
     def mean(xs):
         return round(sum(xs) / len(xs), 4) if xs else None
@@ -110,17 +122,24 @@ def evaluate(version: str, pred_root: Path) -> dict[str, Any]:
         "version": version,
         "reference": "landing_ai_silver",
         "n_pages": sum(s["n"] for s in strat.values()),
-        "layout": {
+        # Primary: area-coverage P/R (granularity-agnostic).
+        "layout_coverage": {
+            "per_class": {c: area_prf(*cover_acc[c]) for c in COARSE
+                          if sum(cover_acc[c]) > 0},
+            "micro": cover_micro(cover_acc),
+        },
+        # Secondary: box-count match (sensitive to segmentation granularity).
+        "layout_boxmatch": {
             "per_class": {c: _prf(*layout_acc[c]) for c in COARSE
                           if sum(layout_acc[c]) > 0},
-            "micro": micro(layout_acc),
+            "micro": box_micro(layout_acc),
         },
         "table": {"n_matched_pairs": len(teds_scores), "mean_teds": mean(teds_scores)},
         "text": {"n_pages": len(text_scores), "mean_similarity": mean(text_scores)},
         "by_stratum": {
             st: {
                 "n_pages": sb["n"],
-                "layout_micro_f1": micro(sb["layout"])["f1"],
+                "layout_coverage_f1": cover_micro(sb["cover"])["f1"],
                 "table_n": len(sb["teds"]),
                 "table_mean_teds": mean(sb["teds"]),
                 "text_mean": mean(sb["text"]),

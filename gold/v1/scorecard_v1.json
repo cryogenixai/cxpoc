@@ -2,7 +2,46 @@
   "version": "v1",
   "reference": "landing_ai_silver",
   "n_pages": 71,
-  "layout": {
+  "layout_coverage": {
+    "per_class": {
+      "table": {
+        "precision": 0.8194,
+        "recall": 0.5774,
+        "f1": 0.6774
+      },
+      "figure": {
+        "precision": 0.6403,
+        "recall": 0.6056,
+        "f1": 0.6225
+      },
+      "logo": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "text": {
+        "precision": 0.652,
+        "recall": 0.6992,
+        "f1": 0.6748
+      },
+      "boilerplate": {
+        "precision": 0.2542,
+        "recall": 0.5106,
+        "f1": 0.3394
+      },
+      "code": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      }
+    },
+    "micro": {
+      "precision": 0.7089,
+      "recall": 0.6325,
+      "f1": 0.6685
+    }
+  },
+  "layout_boxmatch": {
     "per_class": {
       "table": {
         "precision": 0.4919,
@@ -73,63 +112,63 @@
   "by_stratum": {
     "cover_toc": {
       "n_pages": 3,
-      "layout_micro_f1": 0.2353,
+      "layout_coverage_f1": 0.7025,
       "table_n": 2,
       "table_mean_teds": 0.7553,
       "text_mean": 0.0608
     },
     "dense_narrative": {
       "n_pages": 16,
-      "layout_micro_f1": 0.2646,
+      "layout_coverage_f1": 0.4849,
       "table_n": 0,
       "table_mean_teds": null,
       "text_mean": 0.332
     },
     "diagram_figure": {
       "n_pages": 10,
-      "layout_micro_f1": 0.4214,
+      "layout_coverage_f1": 0.7015,
       "table_n": 0,
       "table_mean_teds": null,
       "text_mean": 0.5228
     },
     "financial_table": {
       "n_pages": 16,
-      "layout_micro_f1": 0.634,
+      "layout_coverage_f1": 0.8779,
       "table_n": 44,
       "table_mean_teds": 0.6739,
       "text_mean": 0.7957
     },
     "landscape_table": {
       "n_pages": 4,
-      "layout_micro_f1": 0.08,
+      "layout_coverage_f1": 0.1449,
       "table_n": 1,
       "table_mean_teds": 0.8637,
       "text_mean": 0.0464
     },
     "narrative": {
       "n_pages": 4,
-      "layout_micro_f1": 0.2857,
+      "layout_coverage_f1": 0.821,
       "table_n": 0,
       "table_mean_teds": null,
       "text_mean": 0.5676
     },
     "near_empty": {
       "n_pages": 2,
-      "layout_micro_f1": 0.0,
+      "layout_coverage_f1": 0.0,
       "table_n": 0,
       "table_mean_teds": null,
       "text_mean": 1.0
     },
     "spec_table": {
       "n_pages": 12,
-      "layout_micro_f1": 0.4319,
+      "layout_coverage_f1": 0.8775,
       "table_n": 14,
       "table_mean_teds": 0.7176,
       "text_mean": 0.6836
     },
     "very_dense": {
       "n_pages": 4,
-      "layout_micro_f1": 0.1905,
+      "layout_coverage_f1": 0.4701,
       "table_n": 0,
       "table_mean_teds": null,
       "text_mean": 0.2346
