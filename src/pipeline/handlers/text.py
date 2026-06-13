@@ -21,8 +21,11 @@ def _inside(word_bbox: dict[str, float], region_bbox: dict[str, float]) -> bool:
 
 
 class TextHandler:
-    handles = {"title", "section_header", "paragraph", "list", "caption",
-               "page_header", "page_footer", "footnote"}
+    # Coarse detector classes plus the fine types produced by classification
+    # refinement (§4.1): section_header -> heading, page_header/footer ->
+    # page_number, and the toc/other catch-alls. All extracted from the text layer.
+    handles = {"title", "heading", "section_header", "paragraph", "list", "caption",
+               "page_header", "page_footer", "page_number", "footnote", "toc", "other"}
 
     def extract(self, region: Region, page: PageContext, vlm: VLMClient,
                 crop: bytes | None = None) -> ChunkResult:

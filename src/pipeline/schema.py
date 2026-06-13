@@ -14,7 +14,7 @@ from typing import Any
 
 import jsonschema
 
-SCHEMA_VERSION = "1.0"
+SCHEMA_VERSION = "1.1"
 
 _BBOX = {
     "type": "object",
@@ -34,6 +34,11 @@ _CHUNK = {
     "properties": {
         "id": {"type": "string"},
         "type": {"type": "string"},
+        # Modifiers per §4.1: heading level, list ordering, continuation, etc.
+        # Open object ({} when none) — kept optional for backward compatibility.
+        "attributes": {"type": "object"},
+        # True for boilerplate/navigation types the chunker excludes by default.
+        "is_boilerplate": {"type": "boolean"},
         "bbox": _BBOX,
         "reading_order": {"type": "integer", "minimum": 0},
         "content": {"type": "object"},  # polymorphic by type
@@ -94,6 +99,7 @@ class Region:
     bbox: dict[str, float]          # pixel coords at this stage; normalised in assemble
     detector_confidence: float = 1.0
     crop_key: str | None = None     # regions/pNNNN_rNN.png, for image-needing handlers
+    attributes: dict[str, Any] = field(default_factory=dict)  # §4.1 modifiers (level, ordered, …)
 
 
 @dataclass

@@ -152,9 +152,18 @@ function showDetail(c) {
   els.detail.className = "";
   const body = renderContent(c);
   const isHtml = "html" in (c.content || {});
+  const attrs = c.attributes || {};
+  const attrStr = Object.keys(attrs).length
+    ? Object.entries(attrs).map(([k, v]) => `${k}=${v}`).join(", ")
+    : "(none)";
+  const boilerplate = c.is_boilerplate
+    ? `<div class="kv"><b>boilerplate</b> <span style="color:#e53935;font-weight:600">excluded from chunks</span></div>`
+    : "";
   els.detail.innerHTML = `
     <div class="kv"><b>id</b> ${c.id}</div>
     <div class="kv"><b>type</b> <span style="color:${colorFor(c.type)};font-weight:600">${c.type}</span></div>
+    <div class="kv"><b>attributes</b> ${escapeHtml(attrStr)}</div>
+    ${boilerplate}
     <div class="kv"><b>reading order</b> ${c.reading_order}</div>
     <div class="kv"><b>source</b> ${c.source}</div>
     <div class="kv"><b>confidence</b> ${confPill(c.confidence)}</div>

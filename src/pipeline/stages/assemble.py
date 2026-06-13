@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from .. import manifest as M
 from ..jobctx import JobContext
+from ..refine import BOILERPLATE_TYPES, is_continuation
 from ..schema import SCHEMA_VERSION, validate
 
 
@@ -20,6 +21,11 @@ def _normalise(bbox: dict[str, float], w: int, h: int) -> dict[str, float]:
         "x1": bbox["x1"] / w,
         "y1": bbox["y1"] / h,
     }
+
+
+def _text_of(rec: dict) -> str:
+    content = rec.get("content") or {}
+    return content.get("text", "") if isinstance(content, dict) else ""
 
 
 class AssembleStage:
@@ -49,16 +55,31 @@ class AssembleStage:
             records.sort(key=lambda rec: (rec["bbox"]["y0"], rec["bbox"]["x0"]))
 
             chunks = []
+            prev = None  # (type, text) of the previous block, for continuation
             for order, rec in enumerate(records):
-                chunks.append({
+                rtype = rec["type"]
+                text = _text_of(rec)
+                attributes = dict(rec.get("attributes") or {})
+
+                # Continuation: does this block carry on the previous one across a
+                # column/page break? (§3 Stage 3 — a reading-order decision.)
+                if prev is not None and is_continuation(prev[0], prev[1], rtype, text):
+                    attributes["continued"] = True
+
+                chunk = {
                     "id": rec["region_id"],
-                    "type": rec["type"],
+                    "type": rtype,
+                    "attributes": attributes,
                     "bbox": _normalise(rec["bbox"], w, h),
                     "reading_order": order,
                     "content": rec["content"],
                     "source": rec["source"],
                     "confidence": rec["confidence"],
-                })
+                }
+                if rtype in BOILERPLATE_TYPES:
+                    chunk["is_boilerplate"] = True
+                chunks.append(chunk)
+                prev = (rtype, text)
 
             out_pages.append({
                 "page_index": pi,

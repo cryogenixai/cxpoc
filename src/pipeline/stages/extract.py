@@ -77,6 +77,7 @@ class ExtractStage:
                     "region_id": region.region_id,
                     "page_index": region.page_index,
                     "type": result.type,
+                    "attributes": region.attributes,  # §4.1 modifiers set in layout
                     "bbox": region.bbox,
                     "content": result.content,
                     "source": result.source,

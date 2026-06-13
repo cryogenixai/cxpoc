@@ -35,15 +35,43 @@ _SCALE = DPI / 72.0  # PDF points -> rendered pixels
 _DIGITAL_MIN_CHARS = 5
 
 
+_BOLD_FLAG = 1 << 4  # PyMuPDF span flags: bit 4 = bold
+
+
+def _style_spans(page: "fitz.Page") -> list[tuple[tuple, float, bool]]:
+    """Flat list of (bbox_pts, font_size, is_bold) for every styled span on the page.
+
+    Used to attach font size/weight to words, which ``get_text("words")`` omits.
+    """
+    spans = []
+    for blk in page.get_text("dict")["blocks"]:
+        for line in blk.get("lines", []):
+            for sp in line.get("spans", []):
+                spans.append((sp["bbox"], float(sp["size"]), bool(sp["flags"] & _BOLD_FLAG)))
+    return spans
+
+
 def _extract_words(page: "fitz.Page") -> list[dict]:
-    """Text-layer words with bboxes scaled to rendered-image pixel coords.
+    """Text-layer words with bboxes scaled to rendered-image pixel coords, plus
+    font size and bold flag (needed for heading-level / list refinement, §4.1).
 
     PyMuPDF ``get_text("words")`` yields (x0, y0, x1, y1, word, block, line, n)
     in PDF points with a top-left origin — same orientation as the image, so we
-    only scale by DPI. Words arrive in reading order.
+    only scale by DPI. Words arrive in reading order. Size/weight come from the
+    span whose box contains the word centre (both in PDF points before scaling).
     """
+    spans = _style_spans(page)
+
+    def style_for(x0: float, y0: float, x1: float, y1: float) -> tuple[float, bool]:
+        cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+        for (bx, size, bold) in spans:
+            if bx[0] <= cx <= bx[2] and bx[1] <= cy <= bx[3]:
+                return size, bold
+        return 0.0, False
+
     words = []
     for x0, y0, x1, y1, text, *_ in page.get_text("words"):
+        size, bold = style_for(x0, y0, x1, y1)
         words.append({
             "text": text,
             "bbox": {
@@ -52,6 +80,8 @@ def _extract_words(page: "fitz.Page") -> list[dict]:
                 "x1": x1 * _SCALE,
                 "y1": y1 * _SCALE,
             },
+            "size": size,
+            "bold": bold,
         })
     return words
 

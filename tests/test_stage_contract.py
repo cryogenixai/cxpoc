@@ -51,7 +51,7 @@ def test_text_handler_echoes_clipped_words(job, mock_vlm):
 def test_full_pipeline_schema_valid(job, mock_vlm):
     doc = run_pipeline(job, vlm=mock_vlm)
     validate(doc)  # raises on failure
-    assert doc["schema_version"] == "1.0"
+    assert doc["schema_version"] == "1.1"
     assert len(doc["pages"]) == 1
     chunks = doc["pages"][0]["chunks"]
     assert len(chunks) == 5

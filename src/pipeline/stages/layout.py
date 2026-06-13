@@ -17,6 +17,7 @@ from __future__ import annotations
 import io
 
 from .. import manifest as M
+from .. import refine
 from ..detect import LayoutDetector, make_detector
 from ..jobctx import JobContext
 from ..vlm import VLMClient
@@ -57,6 +58,13 @@ class LayoutStage:
             page_png = ctx.storage.read(ctx.key(page["png_key"]))
             raw = self.detector.detect(page_png, pi)
 
+            # Text-layer signals for classification refinement (§4.1). The page
+            # body font size is the modal word size; word boxes share the region
+            # pixel coords, so clipping is direct.
+            words = ctx.storage.read_json(ctx.key(page["words_key"]))
+            body_size = refine.body_font_size([w.get("size", 0.0) for w in words])
+            page_h = page["height_px"]
+
             regions = []
             for i, r in enumerate(raw):
                 rtype = r["type"]
@@ -67,6 +75,11 @@ class LayoutStage:
                 if rtype == "figure":
                     crop = _crop_png(page_png, bbox)
                     rtype = self.vlm.classify_figure(image_bytes=crop)
+
+                # Classification refinement: coarse class -> fine type + attributes
+                # using exact text-layer signals (font size, leading glyph, position).
+                words_in = refine.clip_words(words, bbox)
+                rtype, attributes = refine.refine_region(rtype, words_in, bbox, body_size, page_h)
 
                 crop_key = None
                 if rtype in _IMAGE_TYPES:
@@ -80,6 +93,7 @@ class LayoutStage:
                     "bbox": bbox,
                     "detector_confidence": r.get("detector_confidence", 1.0),
                     "crop_key": crop_key,
+                    "attributes": attributes,
                 })
 
             ctx.write_json(regions, "layout", f"p{pi:04d}.regions.json")
