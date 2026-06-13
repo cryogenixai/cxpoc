@@ -40,10 +40,40 @@ def make_minimal_pdf() -> bytes:
     return bytes(out)
 
 
+def make_blank_pdf() -> bytes:
+    """A valid one-page PDF with NO text layer — exercises the scanned branch."""
+    objs = [
+        b"<< /Type /Catalog /Pages 2 0 R >>",
+        b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+        b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R >>",
+        b"<< /Length 0 >>\nstream\n\nendstream",
+    ]
+    out = bytearray(b"%PDF-1.4\n")
+    offsets = []
+    for i, body in enumerate(objs, start=1):
+        offsets.append(len(out))
+        out += b"%d 0 obj\n" % i + body + b"\nendobj\n"
+    xref_pos = len(out)
+    n = len(objs) + 1
+    out += b"xref\n0 %d\n" % n
+    out += b"0000000000 65535 f \n"
+    for off in offsets:
+        out += b"%010d 00000 n \n" % off
+    out += b"trailer\n<< /Size %d /Root 1 0 R >>\nstartxref\n%d\n%%%%EOF\n" % (n, xref_pos)
+    return bytes(out)
+
+
 @pytest.fixture
 def sample_pdf(tmp_path):
     path = tmp_path / "sample.pdf"
     path.write_bytes(make_minimal_pdf())
+    return path
+
+
+@pytest.fixture
+def blank_pdf(tmp_path):
+    path = tmp_path / "blank.pdf"
+    path.write_bytes(make_blank_pdf())
     return path
 
 

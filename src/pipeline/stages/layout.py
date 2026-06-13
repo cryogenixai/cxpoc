@@ -17,15 +17,22 @@ from .. import manifest as M
 from ..jobctx import JobContext
 from ..vlm import VLMClient
 
-# Fixed region template per page (pixel bboxes), stacked top-to-bottom so a
-# simple y-then-x sort yields the natural reading order.
+# Fixed region template per page as *fractions* of the page, so the stub adapts
+# to whatever real page dimensions Stage 0 produces. Stacked top-to-bottom so a
+# simple y-then-x sort yields the natural reading order. The title band covers
+# the top of the page, where a document's heading text typically sits.
 _TEMPLATE = [
-    ("title",     {"x0": 100, "y0": 100,  "x1": 1554, "y1": 300}),
-    ("paragraph", {"x0": 100, "y0": 350,  "x1": 1554, "y1": 800}),
-    ("table",     {"x0": 100, "y0": 850,  "x1": 1554, "y1": 1300}),
-    ("chart",     {"x0": 100, "y0": 1350, "x1": 1554, "y1": 1900}),
-    ("figure",    {"x0": 100, "y0": 1950, "x1": 1554, "y1": 2300}),
+    ("title",     (0.00, 0.00, 1.00, 0.15)),
+    ("paragraph", (0.00, 0.15, 1.00, 0.45)),
+    ("table",     (0.00, 0.45, 1.00, 0.62)),
+    ("chart",     (0.00, 0.62, 1.00, 0.85)),
+    ("figure",    (0.00, 0.85, 1.00, 1.00)),
 ]
+
+
+def _scale(frac: tuple[float, float, float, float], w: int, h: int) -> dict[str, float]:
+    fx0, fy0, fx1, fy1 = frac
+    return {"x0": fx0 * w, "y0": fy0 * h, "x1": fx1 * w, "y1": fy1 * h}
 
 
 class LayoutStage:
@@ -45,8 +52,9 @@ class LayoutStage:
         pages = ctx.read_json("pages", "pages.json")
         for page in pages:
             pi = page["page_index"]
+            w, h = page["width_px"], page["height_px"]
             regions = []
-            for i, (rtype, bbox) in enumerate(_TEMPLATE):
+            for i, (rtype, frac) in enumerate(_TEMPLATE):
                 resolved = rtype
                 if rtype == "figure":
                     # Figure-type router refines the crop (mock -> diagram).
@@ -55,7 +63,7 @@ class LayoutStage:
                     "region_id": f"p{pi:04d}_r{i:02d}",
                     "page_index": pi,
                     "type": resolved,
-                    "bbox": bbox,
+                    "bbox": _scale(frac, w, h),
                     "detector_confidence": 1.0,
                 })
             ctx.write_json(regions, "layout", f"p{pi:04d}.regions.json")

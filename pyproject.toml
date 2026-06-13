@@ -17,12 +17,20 @@ dev = [
     "pytest>=8.0,<9",
 ]
 
-# Heavy, GPU/Linux-only deps for the real model stages. Installed ONLY in the
-# `gpu` Docker build target on the EC2 VM — never on the Mac dev machine.
-gpu = [
+# CPU-only parsing deps. Light, have macOS + manylinux wheels, no GPU needed.
+# These power the real Stage 0 (PyMuPDF) and the CPU detector stages — they run
+# fine on the Mac dev machine.
+parse = [
     "pymupdf>=1.24",
     "pillow>=10.0",
     "numpy>=1.26",
+]
+
+# Heavy, GPU/Linux-only deps for the model stages. Installed ONLY in the `gpu`
+# Docker build target on the EC2 VM — never on the Mac dev machine. Superset of
+# `parse`.
+gpu = [
+    "cxpoc[parse]",
     "torch>=2.3",
     "transformers>=4.44",
     "ultralytics>=8.2",      # DocLayout-YOLO family
@@ -42,3 +50,8 @@ where = ["src"]
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
+filterwarnings = [
+    # PyMuPDF (SWIG) emits these on import; not actionable for us.
+    "ignore:builtin type Swig.*:DeprecationWarning",
+    "ignore:builtin type swigvarlink.*:DeprecationWarning",
+]

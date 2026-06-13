@@ -16,10 +16,10 @@ FROM python:3.12-slim AS dev
 
 WORKDIR /app
 
-# Install deps first for layer caching.
+# Install deps first for layer caching. dev + parse = CPU-only, multi-arch.
 COPY pyproject.toml ./
 COPY src ./src
-RUN pip install --no-cache-dir -e ".[dev]"
+RUN pip install --no-cache-dir -e ".[dev,parse]"
 
 COPY tests ./tests
 
