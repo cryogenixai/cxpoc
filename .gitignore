@@ -20,6 +20,10 @@ _jobs/
 # (all regenerable from the corpus + frozen gold manifest)
 eval/out/
 
+# Gold-set page renders are a cache (regenerable from page.pdf); the frozen
+# units (page.pdf, textlayer.json), manifest, and assembled PDF ARE committed.
+gold/**/page.png
+
 # Models (never committed; pulled to a volume on the VM)
 models/
 /models/

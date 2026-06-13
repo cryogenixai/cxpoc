@@ -1,0 +1,658 @@
+{
+  "version": "v1",
+  "created_at": "2026-06-13T20:06:25.512407+00:00",
+  "n_pages": 71,
+  "assembled_pdf": "gold_pages_v1.pdf",
+  "strata": {
+    "cover_toc": 3,
+    "dense_narrative": 16,
+    "diagram_figure": 10,
+    "financial_table": 16,
+    "landscape_table": 4,
+    "narrative": 4,
+    "near_empty": 2,
+    "spec_table": 12,
+    "very_dense": 4
+  },
+  "pages": [
+    {
+      "seq": 0,
+      "gold_id": "TSLA-2025__p0080",
+      "doc_id": "TSLA-2025",
+      "source": "10k-pdf",
+      "source_page": 80,
+      "stratum": "financial_table",
+      "checksum": "37912ebbd97ea447823af3a039dabc2035dd05a3569bd591698a9e3de16c35f8"
+    },
+    {
+      "seq": 1,
+      "gold_id": "TSLA-2019__p0108",
+      "doc_id": "TSLA-2019",
+      "source": "10k-pdf",
+      "source_page": 108,
+      "stratum": "financial_table",
+      "checksum": "bc243843ae6c314f9936a94767b0155689d0a49dfc3b5112742bc14c0cb0e2b1"
+    },
+    {
+      "seq": 2,
+      "gold_id": "TSLA-2022__p0074",
+      "doc_id": "TSLA-2022",
+      "source": "10k-pdf",
+      "source_page": 74,
+      "stratum": "financial_table",
+      "checksum": "24b7fefbd0955096ec39c06872c67429aec3f86a295653b9a187392d263ae06a"
+    },
+    {
+      "seq": 3,
+      "gold_id": "TSLA-2021__p0080",
+      "doc_id": "TSLA-2021",
+      "source": "10k-pdf",
+      "source_page": 80,
+      "stratum": "financial_table",
+      "checksum": "326e7387ae2994224ee012863c13ed7a3b73542dee56892bb37bb84ed9e7906b"
+    },
+    {
+      "seq": 4,
+      "gold_id": "TSLA-2024__p0081",
+      "doc_id": "TSLA-2024",
+      "source": "10k-pdf",
+      "source_page": 81,
+      "stratum": "financial_table",
+      "checksum": "7c7641ae17706f32e889ef74850911d79658a3fc8ecafc010edfea337ddd9fc4"
+    },
+    {
+      "seq": 5,
+      "gold_id": "TSLA-2020__p0089",
+      "doc_id": "TSLA-2020",
+      "source": "10k-pdf",
+      "source_page": 89,
+      "stratum": "financial_table",
+      "checksum": "fd025b7b06ed6de70f5ee525773a5f1647597e54f280cdbdff298f2e3455153d"
+    },
+    {
+      "seq": 6,
+      "gold_id": "TSLA-2021__p0081",
+      "doc_id": "TSLA-2021",
+      "source": "10k-pdf",
+      "source_page": 81,
+      "stratum": "financial_table",
+      "checksum": "2f58ee65a1b65f81a7c95793d0cac50809e1a85636faa3331393facdc3d385e4"
+    },
+    {
+      "seq": 7,
+      "gold_id": "TSLA-2022__p0076",
+      "doc_id": "TSLA-2022",
+      "source": "10k-pdf",
+      "source_page": 76,
+      "stratum": "financial_table",
+      "checksum": "3a2e371cf3204f04a29d927ace39baa34af8955d20f4b307a9704ba070ad7cad"
+    },
+    {
+      "seq": 8,
+      "gold_id": "TSLA-2022__p0040",
+      "doc_id": "TSLA-2022",
+      "source": "10k-pdf",
+      "source_page": 40,
+      "stratum": "financial_table",
+      "checksum": "dae63105fd3e56e3d4d87d9531edaceea78dcbe06165c7970589900d79499639"
+    },
+    {
+      "seq": 9,
+      "gold_id": "TSLA-2024__p0080",
+      "doc_id": "TSLA-2024",
+      "source": "10k-pdf",
+      "source_page": 80,
+      "stratum": "financial_table",
+      "checksum": "3f035a87cabb0519830cff0de6c3935cd894835253e17be10d7b6fa7bea7bf8c"
+    },
+    {
+      "seq": 10,
+      "gold_id": "TSLA-2023__p0079",
+      "doc_id": "TSLA-2023",
+      "source": "10k-pdf",
+      "source_page": 79,
+      "stratum": "financial_table",
+      "checksum": "eb4f33b96307848ac7e1c385f96bc6839f5b712790e39ea6e9e6601395c8b39b"
+    },
+    {
+      "seq": 11,
+      "gold_id": "TSLA-2023__p0072",
+      "doc_id": "TSLA-2023",
+      "source": "10k-pdf",
+      "source_page": 72,
+      "stratum": "financial_table",
+      "checksum": "8556255821273d79c049574081c17ada4cfb2825161654c2bd6ee5f5d8a057b8"
+    },
+    {
+      "seq": 12,
+      "gold_id": "TSLA-2025__p0075",
+      "doc_id": "TSLA-2025",
+      "source": "10k-pdf",
+      "source_page": 75,
+      "stratum": "financial_table",
+      "checksum": "dc9b5d1ac56954f25c0eda3ef2681635aa8334284c75b232824848c61543417f"
+    },
+    {
+      "seq": 13,
+      "gold_id": "TSLA-2020__p0077",
+      "doc_id": "TSLA-2020",
+      "source": "10k-pdf",
+      "source_page": 77,
+      "stratum": "financial_table",
+      "checksum": "a40dc8a1d92b7253694c50f4f779ce23fde5a5adf8d1cf947e6a1be875d627f4"
+    },
+    {
+      "seq": 14,
+      "gold_id": "TSLA-2020__p0111",
+      "doc_id": "TSLA-2020",
+      "source": "10k-pdf",
+      "source_page": 111,
+      "stratum": "dense_narrative",
+      "checksum": "339ef5928bcd2ac38388dc41223a981ec957b40f6c2f701e9e288ac36e91ac97"
+    },
+    {
+      "seq": 15,
+      "gold_id": "TSLA-2017__p0139",
+      "doc_id": "TSLA-2017",
+      "source": "10k-pdf",
+      "source_page": 139,
+      "stratum": "dense_narrative",
+      "checksum": "9c0011120b010ea353d6f96b531cf10936513fc1d667a25d7f4272a0f78cd694"
+    },
+    {
+      "seq": 16,
+      "gold_id": "TSLA-2017__p0141",
+      "doc_id": "TSLA-2017",
+      "source": "10k-pdf",
+      "source_page": 141,
+      "stratum": "dense_narrative",
+      "checksum": "9b06347814717e800c763430fe3b714b816fab144112d666c9f5894ee74dcf88"
+    },
+    {
+      "seq": 17,
+      "gold_id": "inspiron-1100_setupguide2_en-us__p0103",
+      "doc_id": "inspiron-1100_setupguide2_en-us",
+      "source": "dell-pdf",
+      "source_page": 103,
+      "stratum": "dense_narrative",
+      "checksum": "1951ddb9ebce86223182e5b0a2c29e730042bb4d0fa7ddd5bae8cae824ec66eb"
+    },
+    {
+      "seq": 18,
+      "gold_id": "TSLA-2019__p0157",
+      "doc_id": "TSLA-2019",
+      "source": "10k-pdf",
+      "source_page": 157,
+      "stratum": "dense_narrative",
+      "checksum": "f042bf650287eba6aff46b87461e244b0f0091267bbe87b3248fb0070e1a4f19"
+    },
+    {
+      "seq": 19,
+      "gold_id": "inspiron-1100_setupguide2_en-us__p0027",
+      "doc_id": "inspiron-1100_setupguide2_en-us",
+      "source": "dell-pdf",
+      "source_page": 27,
+      "stratum": "dense_narrative",
+      "checksum": "8e972e7292b3fee0d05bd58526cbfb402520a948578fdbc6e23718bf963fb570"
+    },
+    {
+      "seq": 20,
+      "gold_id": "TSLA-2017__p0142",
+      "doc_id": "TSLA-2017",
+      "source": "10k-pdf",
+      "source_page": 142,
+      "stratum": "dense_narrative",
+      "checksum": "1d79b5a9ff84ae908c1a2e16b9c82026ea407d44b6400e8c56e7bf9351d2c15b"
+    },
+    {
+      "seq": 21,
+      "gold_id": "inspiron-1100_setupguide2_en-us__p0105",
+      "doc_id": "inspiron-1100_setupguide2_en-us",
+      "source": "dell-pdf",
+      "source_page": 105,
+      "stratum": "dense_narrative",
+      "checksum": "2fa0589da7c241ea24accf81da7cc96ed92325cf1a7ba9f1a8acb2a4829ae351"
+    },
+    {
+      "seq": 22,
+      "gold_id": "inspiron-11z_servicemanual_en-us__p0010",
+      "doc_id": "inspiron-11z_servicemanual_en-us",
+      "source": "dell-pdf",
+      "source_page": 10,
+      "stratum": "spec_table",
+      "checksum": "811ab845ddf51aa44b6956280780ebc2f747666ae479918cd93cdce923d96698"
+    },
+    {
+      "seq": 23,
+      "gold_id": "inspiron-11z_servicemanual_en-us__p0011",
+      "doc_id": "inspiron-11z_servicemanual_en-us",
+      "source": "dell-pdf",
+      "source_page": 11,
+      "stratum": "spec_table",
+      "checksum": "e5f0a35e2e2c4caf05f0dfaa253b5255a629f43697dba50ceea0ffce10dd83a0"
+    },
+    {
+      "seq": 24,
+      "gold_id": "inspiron-1100_servicemanual_en-us__p0022",
+      "doc_id": "inspiron-1100_servicemanual_en-us",
+      "source": "dell-pdf",
+      "source_page": 22,
+      "stratum": "spec_table",
+      "checksum": "1dc3d392596237c9e82404f01a2aba7406842adc668b192648815d6e8da578db"
+    },
+    {
+      "seq": 25,
+      "gold_id": "inspiron-1120_servicemanual_en-us__p0035",
+      "doc_id": "inspiron-1120_servicemanual_en-us",
+      "source": "dell-pdf",
+      "source_page": 35,
+      "stratum": "spec_table",
+      "checksum": "88593c66afc7310d76b1e96d7f299e3e4486d78ad762ea3832655144f99a1041"
+    },
+    {
+      "seq": 26,
+      "gold_id": "inspiron-1121_servicemanual_en-us__p0035",
+      "doc_id": "inspiron-1121_servicemanual_en-us",
+      "source": "dell-pdf",
+      "source_page": 35,
+      "stratum": "spec_table",
+      "checksum": "bc2eeec8fd4608c498611ef1078dc7e20878999b6cb81d2125c12390349ce6ce"
+    },
+    {
+      "seq": 27,
+      "gold_id": "inspiron-11z-intel-1120_servicemanual_en-us__p0035",
+      "doc_id": "inspiron-11z-intel-1120_servicemanual_en-us",
+      "source": "dell-pdf",
+      "source_page": 35,
+      "stratum": "spec_table",
+      "checksum": "88eab8d695927ccd1251c6d282f353f6b6a4fa9729f8374078cd6ff648ff304d"
+    },
+    {
+      "seq": 28,
+      "gold_id": "inspiron-1120_servicemanual_en-us__p0022",
+      "doc_id": "inspiron-1120_servicemanual_en-us",
+      "source": "dell-pdf",
+      "source_page": 22,
+      "stratum": "spec_table",
+      "checksum": "51cbbe657b225a77f4b4da8d92ecfe64effc60809747b5e7ede4b36213519fbf"
+    },
+    {
+      "seq": 29,
+      "gold_id": "inspiron-1121_servicemanual_en-us__p0022",
+      "doc_id": "inspiron-1121_servicemanual_en-us",
+      "source": "dell-pdf",
+      "source_page": 22,
+      "stratum": "spec_table",
+      "checksum": "230dfa9ebc052feab5dbb7224359e0645b3d0f00b9aa603766941b7805979ba9"
+    },
+    {
+      "seq": 30,
+      "gold_id": "inspiron-1120_setupguide_en-us__p0020",
+      "doc_id": "inspiron-1120_setupguide_en-us",
+      "source": "dell-pdf",
+      "source_page": 20,
+      "stratum": "diagram_figure",
+      "checksum": "a24d9076418f2f69375e5cc5b9f48b34d9adc536f877fe132c499db868caf422"
+    },
+    {
+      "seq": 31,
+      "gold_id": "inspiron-1100_servicemanual_en-us__p0028",
+      "doc_id": "inspiron-1100_servicemanual_en-us",
+      "source": "dell-pdf",
+      "source_page": 28,
+      "stratum": "diagram_figure",
+      "checksum": "00a62985c7f55c2ffc1a001055be5c3292e192cdb478dee13d3183c0ac75f088"
+    },
+    {
+      "seq": 32,
+      "gold_id": "inspiron-1100_ownersmanual_en-us__p0074",
+      "doc_id": "inspiron-1100_ownersmanual_en-us",
+      "source": "dell-pdf",
+      "source_page": 74,
+      "stratum": "diagram_figure",
+      "checksum": "9ffd76d29796ec0c9b57cd3957a3ded0e5be37ba7805c9c0e78a1bc8849e3aac"
+    },
+    {
+      "seq": 33,
+      "gold_id": "inspiron-13-7348-laptop_referenceguide_en-us__p0000",
+      "doc_id": "inspiron-13-7348-laptop_referenceguide_en-us",
+      "source": "dell-pdf",
+      "source_page": 0,
+      "stratum": "diagram_figure",
+      "checksum": "31f796758d4298366f64430ae1cb0377dfb17946202492b2cdf6e76863eb1a90"
+    },
+    {
+      "seq": 34,
+      "gold_id": "inspiron-1100_ownersmanual_en-us__p0081",
+      "doc_id": "inspiron-1100_ownersmanual_en-us",
+      "source": "dell-pdf",
+      "source_page": 81,
+      "stratum": "diagram_figure",
+      "checksum": "d248a4964b21b598047dd651b317b0cc3d7dc0c83cfe9731e2b4c90c9833e9d3"
+    },
+    {
+      "seq": 35,
+      "gold_id": "inspiron-13-7348-laptop_referenceguide_en-us__p0004",
+      "doc_id": "inspiron-13-7348-laptop_referenceguide_en-us",
+      "source": "dell-pdf",
+      "source_page": 4,
+      "stratum": "diagram_figure",
+      "checksum": "e0c9f8d037507ed253247fd7ece11abac045d7fd41f201f4752c8076e35ea761"
+    },
+    {
+      "seq": 36,
+      "gold_id": "inspiron-11z_setupguide_en-us__p0049",
+      "doc_id": "inspiron-11z_setupguide_en-us",
+      "source": "dell-pdf",
+      "source_page": 49,
+      "stratum": "diagram_figure",
+      "checksum": "da7f26051bc2a6957bf3768203620d413ae74c76ff90734000666d332147556c"
+    },
+    {
+      "seq": 37,
+      "gold_id": "inspiron-13-7348-laptop_referenceguide_en-us__p0003",
+      "doc_id": "inspiron-13-7348-laptop_referenceguide_en-us",
+      "source": "dell-pdf",
+      "source_page": 3,
+      "stratum": "diagram_figure",
+      "checksum": "a93c7a05bc8f9d82609310f85d25d308e17bea4e9abc7e3465e56563c8ef336e"
+    },
+    {
+      "seq": 38,
+      "gold_id": "inspiron-11z_servicemanual_en-us__p0016",
+      "doc_id": "inspiron-11z_servicemanual_en-us",
+      "source": "dell-pdf",
+      "source_page": 16,
+      "stratum": "narrative",
+      "checksum": "51bff2100a5c5bf4b7958d7e267a95cb10f2e67a07ca79795407fbb47fb1d700"
+    },
+    {
+      "seq": 39,
+      "gold_id": "inspiron-1120_servicemanual_en-us__p0007",
+      "doc_id": "inspiron-1120_servicemanual_en-us",
+      "source": "dell-pdf",
+      "source_page": 7,
+      "stratum": "narrative",
+      "checksum": "7626ccb7ba0293c442e5700709936efaac076c29395e9d2558b7b0ba70f2b438"
+    },
+    {
+      "seq": 40,
+      "gold_id": "inspiron-1121_servicemanual_en-us__p0007",
+      "doc_id": "inspiron-1121_servicemanual_en-us",
+      "source": "dell-pdf",
+      "source_page": 7,
+      "stratum": "narrative",
+      "checksum": "68633524122c99e1df0da9bb087538b4a71eee5d23b3dba2b952a8068e816974"
+    },
+    {
+      "seq": 41,
+      "gold_id": "inspiron-11z-intel-1120_servicemanual_en-us__p0007",
+      "doc_id": "inspiron-11z-intel-1120_servicemanual_en-us",
+      "source": "dell-pdf",
+      "source_page": 7,
+      "stratum": "narrative",
+      "checksum": "f6de6f3553c07b07d826fda7d2bbc96b68e5ec45340eca4c0d0206717ea6e4ca"
+    },
+    {
+      "seq": 42,
+      "gold_id": "inspiron-11z_setupguide_en-us__p0068",
+      "doc_id": "inspiron-11z_setupguide_en-us",
+      "source": "dell-pdf",
+      "source_page": 68,
+      "stratum": "landscape_table",
+      "checksum": "bae9dc150ac7a8ed96ffa93ac20ccdda661038001f4a1d2584b08fd303d682a8"
+    },
+    {
+      "seq": 43,
+      "gold_id": "inspiron-1120_setupguide_en-us__p0074",
+      "doc_id": "inspiron-1120_setupguide_en-us",
+      "source": "dell-pdf",
+      "source_page": 74,
+      "stratum": "landscape_table",
+      "checksum": "b09c4141cf2f7c8202dc7957428d90d852fdecd96b6b3049fc179e37edd6a95b"
+    },
+    {
+      "seq": 44,
+      "gold_id": "inspiron-1121_setupguide_en-us__p0075",
+      "doc_id": "inspiron-1121_setupguide_en-us",
+      "source": "dell-pdf",
+      "source_page": 75,
+      "stratum": "landscape_table",
+      "checksum": "2d1362a07887f0c01d1bf3987f8786bda7b1997b0a79fd7bfcaf112e209b7714"
+    },
+    {
+      "seq": 45,
+      "gold_id": "inspiron-11z-intel-1120_setupguide_en-us__p0075",
+      "doc_id": "inspiron-11z-intel-1120_setupguide_en-us",
+      "source": "dell-pdf",
+      "source_page": 75,
+      "stratum": "landscape_table",
+      "checksum": "2406f6466eb49b82d6dcd28bcdd1ed56c6eca0be4afa5c8b23266f6f0da34544"
+    },
+    {
+      "seq": 46,
+      "gold_id": "inspiron-11z_setupguide_en-us__p0035",
+      "doc_id": "inspiron-11z_setupguide_en-us",
+      "source": "dell-pdf",
+      "source_page": 35,
+      "stratum": "very_dense",
+      "checksum": "d5d0f193bdb84a995311ecf63fe1bcb3a52ccb6645df6a5add378be05d5dddc3"
+    },
+    {
+      "seq": 47,
+      "gold_id": "inspiron-1100_ownersmanual_en-us__p0010",
+      "doc_id": "inspiron-1100_ownersmanual_en-us",
+      "source": "dell-pdf",
+      "source_page": 10,
+      "stratum": "very_dense",
+      "checksum": "906c32dced99f295f8f1f13007cc43bf044d179aa1fae441e18061847ad253bb"
+    },
+    {
+      "seq": 48,
+      "gold_id": "TSLA-2019__p0154",
+      "doc_id": "TSLA-2019",
+      "source": "10k-pdf",
+      "source_page": 154,
+      "stratum": "very_dense",
+      "checksum": "ce6652b1c723c81b0ab883f001cb286933dbf89115ade42f67ffbc1e0c8888ab"
+    },
+    {
+      "seq": 49,
+      "gold_id": "TSLA-2018__p0156",
+      "doc_id": "TSLA-2018",
+      "source": "10k-pdf",
+      "source_page": 156,
+      "stratum": "very_dense",
+      "checksum": "bac90776c14010ccea7e2d9a94f9ad271869855ec1c824b747dbf3d12efe86bc"
+    },
+    {
+      "seq": 50,
+      "gold_id": "TSLA-2018__p0157",
+      "doc_id": "TSLA-2018",
+      "source": "10k-pdf",
+      "source_page": 157,
+      "stratum": "cover_toc",
+      "checksum": "3c14d218c24488c87bebe23e97ebe546c95ae09ec4a1708f04c72b72e38883ac"
+    },
+    {
+      "seq": 51,
+      "gold_id": "TSLA-2021__p0045",
+      "doc_id": "TSLA-2021",
+      "source": "10k-pdf",
+      "source_page": 45,
+      "stratum": "cover_toc",
+      "checksum": "ea150a2d09c52d187144614bdfd4f05ae9c3575b1f64e081b8b20bddd328a8bb"
+    },
+    {
+      "seq": 52,
+      "gold_id": "TSLA-2018__p0160",
+      "doc_id": "TSLA-2018",
+      "source": "10k-pdf",
+      "source_page": 160,
+      "stratum": "cover_toc",
+      "checksum": "13c3429d18cdaa1c9c4847df6f28346cc6bd33ecab30eea14535846456927ddb"
+    },
+    {
+      "seq": 53,
+      "gold_id": "TSLA-2023__p0049",
+      "doc_id": "TSLA-2023",
+      "source": "10k-pdf",
+      "source_page": 49,
+      "stratum": "near_empty",
+      "checksum": "e4c47b61cbd4ca9018bec89f4a4500f8110101640d111681b456700be47d172e"
+    },
+    {
+      "seq": 54,
+      "gold_id": "inspiron-1120_setupguide_en-us__p0001",
+      "doc_id": "inspiron-1120_setupguide_en-us",
+      "source": "dell-pdf",
+      "source_page": 1,
+      "stratum": "near_empty",
+      "checksum": "baf4a98e90c6d37b6ca0486ae0728ca807976fa547058a79d995d04a21f83b0a"
+    },
+    {
+      "seq": 55,
+      "gold_id": "TSLA-2024__p0065",
+      "doc_id": "TSLA-2024",
+      "source": "10k-pdf",
+      "source_page": 65,
+      "stratum": "financial_table",
+      "checksum": "4770eb5dacc9355d9cedad0b3285a7a8eee85ea8ada4661806767f028b5261ad"
+    },
+    {
+      "seq": 56,
+      "gold_id": "TSLA-2025__p0042",
+      "doc_id": "TSLA-2025",
+      "source": "10k-pdf",
+      "source_page": 42,
+      "stratum": "financial_table",
+      "checksum": "335e14b903902cabe7429defa7e4f5d6108d6cceb177e88c1dc3b93bc50d86bd"
+    },
+    {
+      "seq": 57,
+      "gold_id": "inspiron-1121_setupguide_en-us__p0041",
+      "doc_id": "inspiron-1121_setupguide_en-us",
+      "source": "dell-pdf",
+      "source_page": 41,
+      "stratum": "dense_narrative",
+      "checksum": "11cb06ba27ee8a0ea5b64f3f39057a85311c16bbc307a9caea4fbdb6936157a9"
+    },
+    {
+      "seq": 58,
+      "gold_id": "inspiron-11z-intel-1120_setupguide_en-us__p0041",
+      "doc_id": "inspiron-11z-intel-1120_setupguide_en-us",
+      "source": "dell-pdf",
+      "source_page": 41,
+      "stratum": "dense_narrative",
+      "checksum": "ef09ec4ee1d88d897f42044e4c4d562557034a686cb3f2427c43a438525a5b49"
+    },
+    {
+      "seq": 59,
+      "gold_id": "inspiron-1121_setupguide_en-us__p0035",
+      "doc_id": "inspiron-1121_setupguide_en-us",
+      "source": "dell-pdf",
+      "source_page": 35,
+      "stratum": "dense_narrative",
+      "checksum": "7bdee486e10e389f95c64cbe812d10db6b0a5701609404291644bd255c650bdc"
+    },
+    {
+      "seq": 60,
+      "gold_id": "inspiron-11z-intel-1120_setupguide_en-us__p0035",
+      "doc_id": "inspiron-11z-intel-1120_setupguide_en-us",
+      "source": "dell-pdf",
+      "source_page": 35,
+      "stratum": "dense_narrative",
+      "checksum": "e199d6f5714f8499736087ba5229972a2b8b7f186967a2d7a12b4479e428712e"
+    },
+    {
+      "seq": 61,
+      "gold_id": "inspiron-13-7348-laptop_servicemanual_en-us__p0060",
+      "doc_id": "inspiron-13-7348-laptop_servicemanual_en-us",
+      "source": "dell-pdf",
+      "source_page": 60,
+      "stratum": "dense_narrative",
+      "checksum": "414c7e4f0cd15e6baf5e9e592aaa7d66928305adcaa0202a2b4d52e1df6c72dc"
+    },
+    {
+      "seq": 62,
+      "gold_id": "inspiron-13-7348-laptop_servicemanual_en-us__p0043",
+      "doc_id": "inspiron-13-7348-laptop_servicemanual_en-us",
+      "source": "dell-pdf",
+      "source_page": 43,
+      "stratum": "dense_narrative",
+      "checksum": "8b6a7a34b95461849e5ad9adbbb74afccafe1fa6ddf7c842de31d7abd9902dcf"
+    },
+    {
+      "seq": 63,
+      "gold_id": "inspiron-13-7348-laptop_servicemanual_en-us__p0007",
+      "doc_id": "inspiron-13-7348-laptop_servicemanual_en-us",
+      "source": "dell-pdf",
+      "source_page": 7,
+      "stratum": "dense_narrative",
+      "checksum": "85ee8081e7da6b907ae5744b73d729aaeb5fd9ff745cf76c882415d7386e17a5"
+    },
+    {
+      "seq": 64,
+      "gold_id": "inspiron-1100_servicemanual_en-us__p0008",
+      "doc_id": "inspiron-1100_servicemanual_en-us",
+      "source": "dell-pdf",
+      "source_page": 8,
+      "stratum": "dense_narrative",
+      "checksum": "25c34d47d03b51684d54467e4520cec27d77d271986c4cb16d1d984f0b65dd4d"
+    },
+    {
+      "seq": 65,
+      "gold_id": "inspiron-11z-intel-1120_servicemanual_en-us__p0022",
+      "doc_id": "inspiron-11z-intel-1120_servicemanual_en-us",
+      "source": "dell-pdf",
+      "source_page": 22,
+      "stratum": "spec_table",
+      "checksum": "4b1c95368465bf8f66a1db6ead8d4c68bd977e4de323630d3de809d0df237fc6"
+    },
+    {
+      "seq": 66,
+      "gold_id": "inspiron-1120_connectivityguide4_en-us__p0017",
+      "doc_id": "inspiron-1120_connectivityguide4_en-us",
+      "source": "dell-pdf",
+      "source_page": 17,
+      "stratum": "spec_table",
+      "checksum": "a8b7d4a40ec0d8eac4512d84f8f3b6ed9ce452d21777f52712bb2ef96b0c095d"
+    },
+    {
+      "seq": 67,
+      "gold_id": "inspiron-1120_connectivityguide4_en-us__p0006",
+      "doc_id": "inspiron-1120_connectivityguide4_en-us",
+      "source": "dell-pdf",
+      "source_page": 6,
+      "stratum": "spec_table",
+      "checksum": "aa7c019a6b49889b48ccc2a7625a803a53df66a1e696e10b21e3eee049d0ccb0"
+    },
+    {
+      "seq": 68,
+      "gold_id": "inspiron-1120_connectivityguide4_en-us__p0020",
+      "doc_id": "inspiron-1120_connectivityguide4_en-us",
+      "source": "dell-pdf",
+      "source_page": 20,
+      "stratum": "spec_table",
+      "checksum": "9ca62504b7b465cc901f08cac70c4165db8b174359be89995efdd6d2929f96e5"
+    },
+    {
+      "seq": 69,
+      "gold_id": "inspiron-1100_setupguide_en-us__p0000",
+      "doc_id": "inspiron-1100_setupguide_en-us",
+      "source": "dell-pdf",
+      "source_page": 0,
+      "stratum": "diagram_figure",
+      "checksum": "2c61094b6a0c3bc5a968347760fac1248a4f512cc743353bf09c78007ace1942"
+    },
+    {
+      "seq": 70,
+      "gold_id": "inspiron-1100_setupguide_en-us__p0001",
+      "doc_id": "inspiron-1100_setupguide_en-us",
+      "source": "dell-pdf",
+      "source_page": 1,
+      "stratum": "diagram_figure",
+      "checksum": "2dcc4d41c5f0f1dc450a425c464f61b40387c63c1af3869d73ba966c74803577"
+    }
+  ]
+}
