@@ -1,44 +1,46 @@
 """Stage 1 — Layout Detection & Figure Routing (design §3).
 
-SKELETON: emits a fixed set of typed regions per page instead of running
-DocLayout-YOLO. The set deliberately covers every handler route (title,
-paragraph, table, chart, figure) so the downstream routing fabric and the
-figure-type router are both exercised end-to-end. The ``figure`` region is run
-through the VLM figure router (mock -> "diagram") exactly as the real Stage 1
-will, refining it to chart|diagram|logo|photo.
+Runs a LayoutDetector on each page image to get typed regions, then:
+  * refines every ``figure`` region via the VLM figure router
+    (figure -> chart|diagram|logo|photo); mock router returns "diagram" until
+    the GPU VLM is live, so the seam is identical now and later.
+  * writes a crop (regions/pNNNN_rNN.png) for any region a downstream handler
+    needs as an image (tables, charts, images), recording crop_key.
 
-Real Stage 1 (vertical slice, §7 build step 3) swaps the fixed list for the
-detector + router; the output key (layout/pNNNN.regions.json) is unchanged.
+The detector is swappable: a fast StubLayoutDetector for tests, real
+DocLayout-YOLO otherwise (selected via CXPOC_LAYOUT_DETECTOR). Output key
+(layout/pNNNN.regions.json) is unchanged from the skeleton.
 """
 
 from __future__ import annotations
 
+import io
+
 from .. import manifest as M
+from ..detect import LayoutDetector, make_detector
 from ..jobctx import JobContext
 from ..vlm import VLMClient
 
-# Fixed region template per page as *fractions* of the page, so the stub adapts
-# to whatever real page dimensions Stage 0 produces. Stacked top-to-bottom so a
-# simple y-then-x sort yields the natural reading order. The title band covers
-# the top of the page, where a document's heading text typically sits.
-_TEMPLATE = [
-    ("title",     (0.00, 0.00, 1.00, 0.15)),
-    ("paragraph", (0.00, 0.15, 1.00, 0.45)),
-    ("table",     (0.00, 0.45, 1.00, 0.62)),
-    ("chart",     (0.00, 0.62, 1.00, 0.85)),
-    ("figure",    (0.00, 0.85, 1.00, 1.00)),
-]
+# Region types whose handlers consume the pixel crop.
+_IMAGE_TYPES = {"table", "chart", "diagram", "logo", "photo"}
 
 
-def _scale(frac: tuple[float, float, float, float], w: int, h: int) -> dict[str, float]:
-    fx0, fy0, fx1, fy1 = frac
-    return {"x0": fx0 * w, "y0": fy0 * h, "x1": fx1 * w, "y1": fy1 * h}
+def _crop_png(page_png: bytes, bbox: dict[str, float]) -> bytes:
+    from PIL import Image
+
+    with Image.open(io.BytesIO(page_png)) as im:
+        box = (int(bbox["x0"]), int(bbox["y0"]), int(bbox["x1"]), int(bbox["y1"]))
+        crop = im.convert("RGB").crop(box)
+        out = io.BytesIO()
+        crop.save(out, format="PNG")
+        return out.getvalue()
 
 
 class LayoutStage:
     name = "layout"
 
-    def __init__(self, vlm: VLMClient | None = None):
+    def __init__(self, detector: LayoutDetector | None = None, vlm: VLMClient | None = None):
+        self.detector = detector or make_detector()
         self.vlm = vlm or VLMClient()
 
     def run(self, ctx: JobContext) -> None:
@@ -52,21 +54,35 @@ class LayoutStage:
         pages = ctx.read_json("pages", "pages.json")
         for page in pages:
             pi = page["page_index"]
-            w, h = page["width_px"], page["height_px"]
+            page_png = ctx.storage.read(ctx.key(page["png_key"]))
+            raw = self.detector.detect(page_png, pi)
+
             regions = []
-            for i, (rtype, frac) in enumerate(_TEMPLATE):
-                resolved = rtype
+            for i, r in enumerate(raw):
+                rtype = r["type"]
+                bbox = r["bbox"]
+                region_id = f"p{pi:04d}_r{i:02d}"
+
+                # Figure router: refine figure -> chart|diagram|logo|photo.
                 if rtype == "figure":
-                    # Figure-type router refines the crop (mock -> diagram).
-                    resolved = self.vlm.classify_figure(image_bytes=b"")
+                    crop = _crop_png(page_png, bbox)
+                    rtype = self.vlm.classify_figure(image_bytes=crop)
+
+                crop_key = None
+                if rtype in _IMAGE_TYPES:
+                    crop_key = f"regions/{region_id}.png"
+                    ctx.storage.write(ctx.key(crop_key), _crop_png(page_png, bbox))
+
                 regions.append({
-                    "region_id": f"p{pi:04d}_r{i:02d}",
+                    "region_id": region_id,
                     "page_index": pi,
-                    "type": resolved,
-                    "bbox": _scale(frac, w, h),
-                    "detector_confidence": 1.0,
+                    "type": rtype,
+                    "bbox": bbox,
+                    "detector_confidence": r.get("detector_confidence", 1.0),
+                    "crop_key": crop_key,
                 })
+
             ctx.write_json(regions, "layout", f"p{pi:04d}.regions.json")
 
-        M.set_stage(manifest, self.name, M.DONE, model="stub-layout")
+        M.set_stage(manifest, self.name, M.DONE, model=self.detector.name)
         M.save(ctx, manifest)

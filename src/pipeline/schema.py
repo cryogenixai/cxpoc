@@ -93,6 +93,7 @@ class Region:
     type: str
     bbox: dict[str, float]          # pixel coords at this stage; normalised in assemble
     detector_confidence: float = 1.0
+    crop_key: str | None = None     # regions/pNNNN_rNN.png, for image-needing handlers
 
 
 @dataclass

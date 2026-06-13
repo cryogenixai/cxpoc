@@ -14,6 +14,14 @@ from pipeline.storage import LocalFS
 from pipeline.vlm import VLMClient
 
 
+@pytest.fixture(autouse=True)
+def _default_stub_detector(monkeypatch):
+    """Default every test to the model-free stub layout detector. Golden tests
+    that want the real DocLayout-YOLO construct it explicitly and pass it in,
+    bypassing this env default."""
+    monkeypatch.setenv("CXPOC_LAYOUT_DETECTOR", "stub")
+
+
 def make_minimal_pdf() -> bytes:
     """Build a valid one-page PDF with a line of text, computing xref offsets."""
     stream = b"BT /F1 24 Tf 72 700 Td (Hello Cryogenic) Tj ET"

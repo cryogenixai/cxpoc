@@ -26,23 +26,29 @@ review = [
 ]
 
 # CPU-only parsing deps. Light, have macOS + manylinux wheels, no GPU needed.
-# These power the real Stage 0 (PyMuPDF) and the CPU detector stages — they run
-# fine on the Mac dev machine.
+# These power the real Stage 0 (PyMuPDF) and run fine on the Mac dev machine.
 parse = [
     "pymupdf>=1.24",
     "pillow>=10.0",
     "numpy>=1.26",
 ]
 
-# Heavy, GPU/Linux-only deps for the model stages. Installed ONLY in the `gpu`
-# Docker build target on the EC2 VM — never on the Mac dev machine. Superset of
-# `parse`.
-gpu = [
+# Layout/structure detection models. Heavier (torch), but CPU-capable and have
+# macOS wheels — they run on the Mac dev machine for real Stage 1/2 work without
+# a GPU. Superset of `parse`.
+detect = [
     "cxpoc[parse]",
-    "torch>=2.3",
-    "transformers>=4.44",
-    "ultralytics>=8.2",      # DocLayout-YOLO family
-    "openai>=1.40",          # OpenAI-compatible client for the vLLM sidecar
+    "doclayout-yolo>=0.0.4",   # DocLayout-YOLO (vendors torch + ultralytics)
+    "huggingface-hub>=0.23",   # pull detector weights
+]
+
+# Full GPU/VM stack. detect + the VLM client (the model itself is served by the
+# vLLM sidecar container, not pip-installed here) + table structure (TATR).
+gpu = [
+    "cxpoc[detect]",
+    "transformers>=4.44",      # TATR table structure (later slice)
+    "timm>=1.0",               # TATR backbone
+    "openai>=1.40",            # OpenAI-compatible client for the vLLM sidecar
 ]
 
 [project.scripts]
@@ -63,4 +69,6 @@ filterwarnings = [
     # PyMuPDF (SWIG) emits these on import; not actionable for us.
     "ignore:builtin type Swig.*:DeprecationWarning",
     "ignore:builtin type swigvarlink.*:DeprecationWarning",
+    # thop (pulled by the YOLO stack) uses deprecated distutils.
+    "ignore:distutils Version classes are deprecated.*:DeprecationWarning",
 ]

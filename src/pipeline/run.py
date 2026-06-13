@@ -19,25 +19,31 @@ import uuid
 from pathlib import Path
 
 from . import manifest as M
+from .detect import LayoutDetector, make_detector
 from .jobctx import JobContext
 from .stages import AssembleStage, ExtractStage, IngestStage, LayoutStage
 from .storage import get_storage
 from .vlm import VLMClient
 
 
-def build_stages(vlm: VLMClient | None = None):
+def build_stages(vlm: VLMClient | None = None, detector: LayoutDetector | None = None):
     vlm = vlm or VLMClient()
+    detector = detector or make_detector()
     return [
         IngestStage(),
-        LayoutStage(vlm=vlm),
+        LayoutStage(detector=detector, vlm=vlm),
         ExtractStage(vlm=vlm),
         AssembleStage(),
     ]
 
 
-def run_pipeline(ctx: JobContext, vlm: VLMClient | None = None) -> dict:
+def run_pipeline(
+    ctx: JobContext,
+    vlm: VLMClient | None = None,
+    detector: LayoutDetector | None = None,
+) -> dict:
     """Run all stages in order against an already-initialised job. Idempotent."""
-    for stage in build_stages(vlm):
+    for stage in build_stages(vlm, detector):
         stage.run(ctx)
     return ctx.read_json("output", "document.json")
 
