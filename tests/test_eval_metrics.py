@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from eval.metrics.layout import area_prf, content_coverage_area, coverage_areas, iou, layout_scores
 from eval.metrics.table import teds
-from eval.metrics.text import text_similarity
+from eval.metrics.text import text_similarity, token_overlap, token_prf, tokens
 
 
 def _c(coarse, x0, y0, x1, y1):
@@ -80,3 +80,15 @@ def test_text_similarity():
     assert text_similarity("Hello  world", "Hello world") == 1.0  # whitespace-normalized
     assert text_similarity("", "") == 1.0
     assert 0.0 <= text_similarity("abc", "xyz") < 1.0
+
+
+def test_token_overlap_agnostic_to_format_and_order():
+    # Same words, different order + markdown/HTML wrapping -> ~perfect overlap,
+    # where ordered char-similarity would be poor.
+    ours = "<table><tr><td>Height</td><td>144 mm</td></tr></table>"
+    ref = "### Display\nHeight: 144 mm"
+    prf = token_prf(*token_overlap(ours, ref))
+    # ref tokens: display, height, 144, mm ; ours: table,tr,td(stripped), height,144,mm
+    assert prf["recall"] >= 0.75   # recovered height/144/mm (display is a heading we lack)
+    # HTML tags are stripped before tokenizing — no 'td'/'tr'/'table' tokens leak in
+    assert tokens("<td>x</td>") == ["x"]

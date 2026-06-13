@@ -17,7 +17,7 @@ from eval.metrics.layout import (
     area_prf, content_coverage_area, coverage_areas, iou, layout_scores, _prf,
 )
 from eval.metrics.table import teds
-from eval.metrics.text import text_similarity
+from eval.metrics.text import text_similarity, token_overlap, token_prf
 from eval.taxonomy import COARSE, coarse_ours
 
 
@@ -33,9 +33,19 @@ def _our_chunks(doc: dict) -> list[dict]:
                 "bbox": c["bbox"],
                 "text": content.get("text", ""),
                 "html": content.get("html", ""),
+                "desc": content.get("description", ""),
                 "ro": c.get("reading_order", 0),
             })
     return out
+
+
+def _all_text(chunks: list[dict]) -> str:
+    """All recoverable text on the page across every chunk (text + table cells +
+    descriptions), class- and order-agnostic. Tags are stripped at tokenization."""
+    return " ".join(
+        " ".join(filter(None, (c.get("text", ""), c.get("html", ""), c.get("desc", ""))))
+        for c in chunks
+    )
 
 
 def _page_text(chunks: list[dict], by_ro: bool) -> str:
@@ -70,8 +80,8 @@ def evaluate(version: str, pred_root: Path) -> dict[str, Any]:
     layout_acc = {cls: [0, 0, 0] for cls in COARSE}    # box-match tp, fp, fn (secondary)
     cover_acc = {cls: [0, 0, 0] for cls in COARSE}     # per-class area inter, pred, ref (primary)
     content_acc = [0, 0, 0]                             # class-agnostic localization
+    text_acc = [0, 0, 0]                                # token inter, pred, ref
     teds_scores: list[float] = []
-    text_scores: list[float] = []
     strat: dict[str, dict] = {}
 
     for rec in manifest["pages"]:
@@ -84,7 +94,7 @@ def evaluate(version: str, pred_root: Path) -> dict[str, Any]:
         ref = silver[gid]["chunks"]
 
         sb = strat.setdefault(st, {"n": 0, "cover": {c: [0, 0, 0] for c in COARSE},
-                                   "content": [0, 0, 0], "teds": [], "text": []})
+                                   "content": [0, 0, 0], "teds": [], "text": [0, 0, 0]})
         sb["n"] += 1
 
         # localization — class-agnostic content coverage
@@ -109,9 +119,10 @@ def evaluate(version: str, pred_root: Path) -> dict[str, Any]:
             score = teds(p["html"], r["html"])
             teds_scores.append(score); sb["teds"].append(score)
 
-        # text
-        ts = text_similarity(_page_text(ours, by_ro=True), _page_text(ref, by_ro=False))
-        text_scores.append(ts); sb["text"].append(ts)
+        # text — word-token overlap over all chunk text (class/order/format agnostic)
+        ti, tp, tr = token_overlap(_all_text(ours), _all_text(ref))
+        text_acc[0] += ti; text_acc[1] += tp; text_acc[2] += tr
+        sb["text"][0] += ti; sb["text"][1] += tp; sb["text"][2] += tr
 
     def box_micro(acc):
         tot = [sum(acc[c][i] for c in acc) for i in range(3)]
@@ -143,7 +154,8 @@ def evaluate(version: str, pred_root: Path) -> dict[str, Any]:
             "micro": box_micro(layout_acc),
         },
         "table": {"n_matched_pairs": len(teds_scores), "mean_teds": mean(teds_scores)},
-        "text": {"n_pages": len(text_scores), "mean_similarity": mean(text_scores)},
+        # Word-token overlap over all page text (class/order/format agnostic).
+        "text": token_prf(*text_acc),
         "by_stratum": {
             st: {
                 "n_pages": sb["n"],
@@ -151,7 +163,7 @@ def evaluate(version: str, pred_root: Path) -> dict[str, Any]:
                 "layout_coverage_f1": cover_micro(sb["cover"])["f1"],
                 "table_n": len(sb["teds"]),
                 "table_mean_teds": mean(sb["teds"]),
-                "text_mean": mean(sb["text"]),
+                "text_f1": token_prf(*sb["text"])["f1"],
             }
             for st, sb in sorted(strat.items())
         },

@@ -111,8 +111,9 @@
     "mean_teds": 0.6897
   },
   "text": {
-    "n_pages": 71,
-    "mean_similarity": 0.5218
+    "precision": 0.8576,
+    "recall": 0.8091,
+    "f1": 0.8326
   },
   "by_stratum": {
     "cover_toc": {
@@ -121,7 +122,7 @@
       "layout_coverage_f1": 0.7025,
       "table_n": 2,
       "table_mean_teds": 0.7553,
-      "text_mean": 0.0608
+      "text_f1": 0.9059
     },
     "dense_narrative": {
       "n_pages": 16,
@@ -129,7 +130,7 @@
       "layout_coverage_f1": 0.4849,
       "table_n": 0,
       "table_mean_teds": null,
-      "text_mean": 0.332
+      "text_f1": 0.7629
     },
     "diagram_figure": {
       "n_pages": 10,
@@ -137,7 +138,7 @@
       "layout_coverage_f1": 0.7015,
       "table_n": 0,
       "table_mean_teds": null,
-      "text_mean": 0.5228
+      "text_f1": 0.8896
     },
     "financial_table": {
       "n_pages": 16,
@@ -145,7 +146,7 @@
       "layout_coverage_f1": 0.8779,
       "table_n": 44,
       "table_mean_teds": 0.6739,
-      "text_mean": 0.7957
+      "text_f1": 0.8727
     },
     "landscape_table": {
       "n_pages": 4,
@@ -153,7 +154,7 @@
       "layout_coverage_f1": 0.1449,
       "table_n": 1,
       "table_mean_teds": 0.8637,
-      "text_mean": 0.0464
+      "text_f1": 0.751
     },
     "narrative": {
       "n_pages": 4,
@@ -161,7 +162,7 @@
       "layout_coverage_f1": 0.821,
       "table_n": 0,
       "table_mean_teds": null,
-      "text_mean": 0.5676
+      "text_f1": 0.7571
     },
     "near_empty": {
       "n_pages": 2,
@@ -169,7 +170,7 @@
       "layout_coverage_f1": 0.0,
       "table_n": 0,
       "table_mean_teds": null,
-      "text_mean": 1.0
+      "text_f1": 1.0
     },
     "spec_table": {
       "n_pages": 12,
@@ -177,7 +178,7 @@
       "layout_coverage_f1": 0.8775,
       "table_n": 14,
       "table_mean_teds": 0.7176,
-      "text_mean": 0.6836
+      "text_f1": 0.7991
     },
     "very_dense": {
       "n_pages": 4,
@@ -185,7 +186,7 @@
       "layout_coverage_f1": 0.4701,
       "table_n": 0,
       "table_mean_teds": null,
-      "text_mean": 0.2346
+      "text_f1": 0.8239
     }
   }
 }

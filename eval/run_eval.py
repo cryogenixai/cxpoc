@@ -56,14 +56,14 @@ def main(argv: list[str] | None = None) -> int:
     t = sc["table"]
     print(f"TABLE   mean TEDS {_fmt(t['mean_teds'])}  over {t['n_matched_pairs']} IoU-matched table pairs")
     tx = sc["text"]
-    print(f"TEXT    mean similarity {_fmt(tx['mean_similarity'])}  over {tx['n_pages']} pages\n")
+    print(f"TEXT    word-token  P {tx['precision']:.3f}  R {tx['recall']:.3f}  F1 {tx['f1']:.3f}\n")
 
     print("BY STRATUM  (locF1 = class-agnostic localization; covF1 = per-class layout)")
     print(f"  {'stratum':18} {'n':>3}  {'locF1':>6}  {'covF1':>6}  {'tables':>6}  {'TEDS':>6}  {'text':>6}")
     for st, s in sc["by_stratum"].items():
         print(f"  {st:18} {s['n_pages']:>3}  {s['content_coverage_f1']:>6.3f}  "
               f"{s['layout_coverage_f1']:>6.3f}  {s['table_n']:>6}  "
-              f"{_fmt(s['table_mean_teds']):>6}  {_fmt(s['text_mean']):>6}")
+              f"{_fmt(s['table_mean_teds']):>6}  {_fmt(s['text_f1']):>6}")
 
     print(f"\nsaved -> {out}")
     return 0
